@@ -1,0 +1,381 @@
+{
+  "134": {
+    "inputs": {
+      "switch_1": "Off",
+      "controlnet_1": "SDXL/mistoLine_rank256.safetensors",
+      "controlnet_strength_1": 0.8,
+      "start_percent_1": 0,
+      "end_percent_1": 0.8,
+      "switch_2": "On",
+      "controlnet_2": "SDXL/control-lora-depth-rank256.safetensors",
+      "controlnet_strength_2": 0.8,
+      "start_percent_2": 0,
+      "end_percent_2": 0.8,
+      "switch_3": "Off",
+      "controlnet_3": "None",
+      "controlnet_strength_3": 0.7000000000000001,
+      "start_percent_3": 0,
+      "end_percent_3": 0.8,
+      "image_1": [
+        "2719",
+        0
+      ],
+      "image_2": [
+        "2357",
+        0
+      ],
+      "image_3": [
+        "2719",
+        0
+      ]
+    },
+    "class_type": "CR Multi-ControlNet Stack",
+    "_meta": {
+      "title": "ControlNet堆"
+    }
+  },
+  "135": {
+    "inputs": {
+      "switch": "On",
+      "controlnet_stack": [
+        "134",
+        0
+      ]
+    },
+    "class_type": "CR Apply Multi-ControlNet",
+    "_meta": {
+      "title": "应用ControlNet堆"
+    }
+  },
+  "583": {
+    "inputs": {
+      "images": [
+        "809",
+        7
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "预览图像"
+    }
+  },
+  "646": {
+    "inputs": {
+      "pixels": [
+        "1312",
+        0
+      ],
+      "vae": [
+        "1955",
+        5
+      ]
+    },
+    "class_type": "VAEEncode",
+    "_meta": {
+      "title": "VAE编码"
+    }
+  },
+  "809": {
+    "inputs": {
+      "lora_name": "None",
+      "lora_model_strength": 1,
+      "lora_clip_strength": 1,
+      "upscale_method": "None",
+      "factor": 1,
+      "crop": "disabled",
+      "sampler_state": "Sample",
+      "steps": 20,
+      "cfg": 2.5,
+      "sampler_name": "dpmpp_3m_sde_gpu",
+      "scheduler": "karras",
+      "denoise": 0.45,
+      "image_output": "Hide",
+      "save_prefix": "ComfyUI",
+      "seed": 1068344749078649,
+      "pipe": [
+        "1955",
+        0
+      ],
+      "optional_model": [
+        "1955",
+        1
+      ],
+      "optional_positive": [
+        "1955",
+        2
+      ],
+      "optional_negative": [
+        "1955",
+        3
+      ],
+      "optional_latent": [
+        "646",
+        0
+      ],
+      "optional_vae": [
+        "1955",
+        5
+      ],
+      "optional_clip": [
+        "1955",
+        6
+      ]
+    },
+    "class_type": "ttN pipeKSampler",
+    "_meta": {
+      "title": "TTN采样器"
+    }
+  },
+  "1312": {
+    "inputs": {
+      "aspect_ratio": "original",
+      "proportional_width": 1,
+      "proportional_height": 1,
+      "fit": "letterbox",
+      "method": "lanczos",
+      "round_to_multiple": "8",
+      "scale_to_side": "longest",
+      "scale_to_length": 1280,
+      "background_color": "#000000",
+      "image": [
+        "2719",
+        0
+      ]
+    },
+    "class_type": "LayerUtility: ImageScaleByAspectRatio V2",
+    "_meta": {
+      "title": "按宽高比缩放_V2"
+    }
+  },
+  "1955": {
+    "inputs": {
+      "ckpt_name": "CHEYENNE_v20.safetensors",
+      "config_name": "Default",
+      "vae_name": "Baked VAE",
+      "clip_skip": -2,
+      "lora1_name": "None",
+      "lora1_model_strength": 1,
+      "lora1_clip_strength": 1,
+      "lora2_name": "None",
+      "lora2_model_strength": 1,
+      "lora2_clip_strength": 1,
+      "lora3_name": "None",
+      "lora3_model_strength": 1,
+      "lora3_clip_strength": 1,
+      "positive": [
+        "3160",
+        0
+      ],
+      "positive_token_normalization": "none",
+      "positive_weight_interpretation": "A1111",
+      "negative": [
+        "1958",
+        0
+      ],
+      "negative_token_normalization": "none",
+      "negative_weight_interpretation": "A1111",
+      "empty_latent_width": 1920,
+      "empty_latent_height": 1080,
+      "batch_size": 1,
+      "seed": 614605865420057,
+      "model_override": [
+        "2366",
+        0
+      ],
+      "clip_override": [
+        "3161",
+        1
+      ]
+    },
+    "class_type": "ttN pipeLoader",
+    "_meta": {
+      "title": "TTN加载器"
+    }
+  },
+  "1958": {
+    "inputs": {
+      "text": "NSFW,(worst quality:2),(low quality:2),(normal quality:2),cleavage，lowres,normal quality,((monochrome)),Earrings，((grayscale)),skin spots,acnes,skin blemishes,age spot,(ugly:1.331),(duplicate:1.331),(morbid:1.21),(mutilated:1.21),(tranny:1.331),mutated hands,(poorly drawn hands:1.5),blurry,(bad anatomy:1.21),(bad proportions:1.331),extra limbs,(disfigured:1.331),(missing arms:1.331),(extra legs:1.331),(fused fingers:1.5),(too many fingers:1.5),(unclear eyes:1.331),lowers,bad hands,missing fingers2,extra digit,bad hands,missing fingers,(((extra arms and legs))),Earrings，moustache，light"
+    },
+    "class_type": "ttN text",
+    "_meta": {
+      "title": "TTN文本"
+    }
+  },
+  "2357": {
+    "inputs": {
+      "preprocessor": "DepthAnythingV2Preprocessor",
+      "resolution": 1024,
+      "image": [
+        "2719",
+        0
+      ]
+    },
+    "class_type": "AIO_Preprocessor",
+    "_meta": {
+      "title": "Aux集成预处理器"
+    }
+  },
+  "2365": {
+    "inputs": {
+      "image": "test-ref-2.png",
+      "upload": "image"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "加载图像"
+    }
+  },
+  "2366": {
+    "inputs": {
+      "preset": "PLUS (high strength)",
+      "lora_strength": 0.6,
+      "provider": "CPU",
+      "weight": 0.65,
+      "weight_faceidv2": 1,
+      "weight_type": "style transfer",
+      "combine_embeds": "concat",
+      "start_at": 0,
+      "end_at": 1,
+      "embeds_scaling": "V only",
+      "cache_mode": "all",
+      "use_tiled": false,
+      "use_batch": false,
+      "sharpening": 0,
+      "layer_weights": "",
+      "model": [
+        "2709",
+        0
+      ],
+      "image": [
+        "2365",
+        0
+      ]
+    },
+    "class_type": "easy ipadapterApplyADV",
+    "_meta": {
+      "title": "应用IPAdapter(高级)"
+    }
+  },
+  "2690": {
+    "inputs": {
+      "image": "test-0423-2.png",
+      "upload": "image"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "加载图像"
+    }
+  },
+  "2691": {
+    "inputs": {
+      "padding": 32,
+      "region_type": "dominant",
+      "mask": [
+        "2690",
+        1
+      ]
+    },
+    "class_type": "Mask Crop Region",
+    "_meta": {
+      "title": "遮罩裁剪区域"
+    }
+  },
+  "2695": {
+    "inputs": {
+      "width": 720,
+      "height": 0,
+      "interpolation": "nearest",
+      "method": "keep proportion",
+      "condition": "always",
+      "multiple_of": 0,
+      "image": [
+        "2690",
+        0
+      ]
+    },
+    "class_type": "ImageResize+",
+    "_meta": {
+      "title": "图像缩放"
+    }
+  },
+  "2709": {
+    "inputs": {
+      "preset": "PLUS (high strength)",
+      "lora_strength": 0.6,
+      "provider": "CPU",
+      "weight": 0.7000000000000001,
+      "weight_faceidv2": 1,
+      "weight_type": "style transfer",
+      "combine_embeds": "concat",
+      "start_at": 0,
+      "end_at": 1,
+      "embeds_scaling": "V only",
+      "cache_mode": "all",
+      "use_tiled": false,
+      "use_batch": false,
+      "sharpening": 0,
+      "layer_weights": "",
+      "model": [
+        "3161",
+        0
+      ],
+      "image": [
+        "2710",
+        0
+      ]
+    },
+    "class_type": "easy ipadapterApplyADV",
+    "_meta": {
+      "title": "应用IPAdapter(高级)"
+    }
+  },
+  "2710": {
+    "inputs": {
+      "image": "test-ref-1.webp",
+      "upload": "image"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "加载图像"
+    }
+  },
+  "2719": {
+    "inputs": {
+      "upscale_method": "lanczos",
+      "width": 720,
+      "height": 1280,
+      "crop": "center",
+      "image": [
+        "2695",
+        0
+      ]
+    },
+    "class_type": "ImageScale",
+    "_meta": {
+      "title": "图像缩放"
+    }
+  },
+  "3160": {
+    "inputs": {
+      "model": "glm-4v-flash",
+      "user_prompt": "将图片描述为Stable Diffusion提示词,详细描述人物、场景、环境。",
+      "image": [
+        "2690",
+        0
+      ]
+    },
+    "class_type": "LayerUtility: ZhipuGLM4V",
+    "_meta": {
+      "title": "图层工具：ZhipuGLM4V（高级）"
+    }
+  },
+  "3161": {
+    "inputs": {
+      "ckpt_name": "niji-动漫二次元-sdxl_2.0.safetensors"
+    },
+    "class_type": "CheckpointLoaderSimple",
+    "_meta": {
+      "title": "Checkpoint加载器(简易)"
+    }
+  }
+}
