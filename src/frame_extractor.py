@@ -55,16 +55,18 @@ def extract_frames(video_path, sensitivity=5.0, min_keyframes=3, max_keyframes=1
         saved_image_paths.append(img_path)
         print(f"保存关键帧 {i+1}/{len(keyframes)}: {img_path}")
     
-    # 3. 可视化结果并保存到输出目录
-    chart_filename = f"visualize_{video_name}_keyframes_sensitivity_{sensitivity:.1f}.jpg"
-    output_chart_path = os.path.join(output_dir, chart_filename)
+    # # 3. 可视化结果并保存到输出目录
+    # chart_filename = f"visualize_{video_name}_keyframes_sensitivity_{sensitivity:.1f}.jpg"
+    # output_chart_path = os.path.join(output_dir, chart_filename)
     
-    visualize_results(keyframes, keyframe_images, frame_diffs, flow_magnitudes,
-                    initial_keyframes=initial_keyframes, fps=fps, output_path=output_chart_path)
+    # visualize_results(keyframes, keyframe_images, frame_diffs, flow_magnitudes,
+    #                 initial_keyframes=initial_keyframes, fps=fps, output_path=output_chart_path)
     
-    print(f"关键帧可视化已保存至: {output_chart_path}")
-    print(f"总共提取并保存了 {len(keyframes)} 个关键帧")
+    # print(f"关键帧可视化已保存至: {output_chart_path}")
+    # print(f"总共提取并保存了 {len(keyframes)} 个关键帧")
 
+    # return keyframes, keyframe_images, output_chart_path, saved_image_paths
+    output_chart_path = None
     return keyframes, keyframe_images, output_chart_path, saved_image_paths
 
 def extract_keyframes_with_sensitivity(video_path, sensitivity=5.0, min_keyframes=6, max_keyframes=12, show_progress=True):

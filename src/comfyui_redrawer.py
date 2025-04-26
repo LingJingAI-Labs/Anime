@@ -12,10 +12,13 @@ import websocket
 import paramiko
 import re
 import glob
+import json
+import os
+import sys
 
 # 配置参数
 SERVER_ADDRESS = "http://106.54.35.113:6889"  # ComfyUI服务器地址
-WORKFLOW_FILE = "workflow/T2I.json"  # <--- 修改: 更新工作流文件路径
+WORKFLOW_FILE = "workflow/T2I-nanzhu.json"  # 默认工作流，可以被覆盖
 OUTPUT_FOLDER = "data/redraw_results"  # <--- 修改: 可以更改输出文件夹名称
 MONITOR_INTERVAL = 0.5  # 监控间隔(秒)
 MAX_WAIT_TIME = 300  # <--- 修改: 适当增加最大等待时间
@@ -37,7 +40,7 @@ SSH_CONFIG = {
 #     "steps_node_id": "3028"
 # }
 
-IMAGE_INPUT_NODE_ID = "2690" # <--- 新增: 定义输入图像节点的ID
+IMAGE_INPUT_NODE_ID = "74" # <--- 新增: 定义输入图像节点的ID
 
 class RemoteMonitor:
     """通过SSH连接监控远程服务器资源"""
@@ -424,11 +427,17 @@ class ResourceMonitor:
 class ComfyUITester:
     """用于与ComfyUI交互并处理图像的工具"""
 
-    def __init__(self, server_address, workflow_file, output_folder):
+    def __init__(self, server_address, workflow_file, output_folder, char=None):
         self.server_address = server_address
         self.api_url = server_address.rstrip('/')
+        
+        # 初始设置工作流文件
         self.workflow_file = workflow_file
-        # self.output_folder 现在应该是由 main.py 传入的 "data/redraw_results"
+        
+        # 如果提供了角色参数，则更新工作流文件
+        if char:
+            self.set_workflow_for_char(char)
+            
         self.output_folder = output_folder
         self.client_id = str(uuid.uuid4())
         # 监控器现在使用主输出文件夹，但不会在其中创建文件
@@ -437,6 +446,33 @@ class ComfyUITester:
         # 确保主输出目录存在
         os.makedirs(self.output_folder, exist_ok=True)
         print(f"输出目录设置为: {os.path.abspath(self.output_folder)}") # 打印绝对路径以确认
+    
+    def set_workflow_for_char(self, char):
+        """根据角色类型设置相应的工作流文件"""
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        
+        if char == "nanzhu":
+            new_workflow = "workflow/T2I-nanzhu.json"
+        elif char == "nvzhu":
+            new_workflow = "workflow/T2I-nvzhu.json"
+        elif char == "nanpei":
+            new_workflow = "workflow/T2I-nanpei.json"
+        else:
+            # 如果不是已知类型，保持当前工作流
+            print(f"未知角色类型 '{char}'，使用默认工作流")
+            return self.workflow_file
+        
+        # 更新工作流路径（相对于脚本目录）
+        self.workflow_file = os.path.join(script_dir, new_workflow)
+        if not os.path.exists(self.workflow_file):
+            # 如果相对路径找不到，尝试直接使用 workflow_file
+            self.workflow_file = new_workflow
+            if not os.path.exists(self.workflow_file):
+                print(f"警告: 找不到角色工作流: {new_workflow}")
+                return self.workflow_file
+        
+        print(f"已设置工作流为: {new_workflow} (角色: {char})")
+        return self.workflow_file
 
     def load_workflow(self):
         """加载工作流文件"""
