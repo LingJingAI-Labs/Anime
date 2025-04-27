@@ -5,7 +5,7 @@
       "config_name": "Default",
       "vae_name": "Baked VAE",
       "clip_skip": -2,
-      "lora1_name": "char02.safetensors",
+      "lora1_name": "nvzhu.safetensors",
       "lora1_model_strength": 0.86,
       "lora1_clip_strength": 1,
       "lora2_name": "None",

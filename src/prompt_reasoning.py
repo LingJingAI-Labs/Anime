@@ -63,9 +63,11 @@ def generate_anime_prompt(image_path: str) -> str | None:
     # 这里的 user_prompt 指导模型如何工作
     user_prompt = (
         "请仔细分析提供的这张图像。\n"
-        "你的任务是生成一个详细的英文文本提示词 (prompt)，这个提示词可以被 AI 图像生成模型（Stable Diffusion）使用，来创作出这张图像的【动漫风格】版本。\n"
+        "你的任务是生成一个详细的英文文本提示词 (prompt)，这个提示词可以被 AI 图像生成模型（Stable Diffusion）使用，来创作出这张图像的【2D动漫风格】版本。\n"
         "提示词应该包含关键元素、主体、构图、色彩、光线、氛围，并明确指示生成【动漫或动画艺术风格】(anime or animation art style)。\n"
         "请专注于捕捉原始图像的精髓，并将其转化为动漫美学。\n"
+        "如果是男性请务必在提示词开头添加'tianji, 1boy'\n"
+        "如果是女性请务必在提示词开头添加'fqian, 1girl, forehead mark, hair stick'\n"
         "输出只需要包含生成的英文提示词本身，不要添加任何额外的解释或说明文字。"
     )
 
