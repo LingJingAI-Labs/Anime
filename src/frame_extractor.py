@@ -720,7 +720,7 @@ def visualize_results(keyframes, keyframe_images, frame_diffs, flow_magnitudes,
     plt.savefig(output_path, dpi=300, bbox_inches='tight', facecolor='white')
     
     # 显示图像但不阻塞
-    plt.show(block=False)
+    # plt.show(block=False)   
     return fig
 
 if __name__ == "__main__":
