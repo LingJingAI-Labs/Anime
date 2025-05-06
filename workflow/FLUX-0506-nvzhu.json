@@ -356,7 +356,7 @@
   },
   "181": {
     "inputs": {
-      "text": "char02 "
+      "text": "char02"
     },
     "class_type": "Text Multiline",
     "_meta": {
@@ -428,7 +428,7 @@
   },
   "190": {
     "inputs": {
-      "image": "clipspace/clipspace-mask-124611.30000007153.png [input]"
+      "image": "clipspace/clipspace-mask-1120941.png [input]"
     },
     "class_type": "LoadImage",
     "_meta": {

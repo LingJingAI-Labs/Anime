@@ -202,12 +202,11 @@ class ComfyUITester:
             return None
 
     def download_output_images(self, history, prompt_id, output_dir_for_this_run):
-        """从历史记录中下载生成的图像到指定目录。"""
+        """从历史记录中下载生成的图像到指定目录，并添加时间戳到文件名。""" # <--- 修改注释
         if not history or prompt_id not in history:
             print("未找到用于下载的执行历史。")
             return []
         
-        # 确保此运行的特定输出目录存在 (它应该是 self.output_folder)
         os.makedirs(output_dir_for_this_run, exist_ok=True)
         
         outputs = history[prompt_id].get('outputs', {})
@@ -227,26 +226,31 @@ class ComfyUITester:
         for node_id, images in image_nodes_outputs.items():
             for image_data in images:
                 filename = image_data.get('filename')
-                subfolder = image_data.get('subfolder', '') # 处理子文件夹为None或缺失的情况
+                subfolder = image_data.get('subfolder', '')
                 img_type = image_data.get('type')
                 
                 if not filename:
                     print(f"  跳过没有文件名的图像数据: {image_data}")
                     continue
 
-                # 构建URL，确保在子文件夹为空时正确处理
                 image_url_parts = [f"{self.api_url}/view?filename={requests.utils.quote(filename)}"]
                 if subfolder:
                     image_url_parts.append(f"subfolder={requests.utils.quote(subfolder)}")
                 image_url_parts.append(f"type={img_type}")
                 image_url = "&".join(image_url_parts)
                 
-                # 如果多个节点输出同名图像，确保文件名唯一 (对于最终输出不太常见)
-                # 为简单起见，我们只使用给定的文件名。如果发生冲突，请添加前缀/后缀。
-                local_path = os.path.join(output_dir_for_this_run, filename)
+                # --- 主要修改在这里 ---
+                # 分离文件名和扩展名
+                name_part, ext_part = os.path.splitext(filename)
+                # 获取当前时间戳
+                timestamp = datetime.now().strftime("%Y%m%d%H%M%S%f") # 年月日时分秒毫秒
+                # 构建新的带时间戳的文件名
+                new_filename_with_timestamp = f"{name_part}_{timestamp}{ext_part}"
+                local_path = os.path.join(output_dir_for_this_run, new_filename_with_timestamp)
+                # --- 修改结束 ---
                 
                 try:
-                    print(f"  正在下载: {filename} (来自节点 {node_id}, URL: {image_url})")
+                    print(f"  正在下载: {filename} (来自节点 {node_id}, 将保存为: {new_filename_with_timestamp})") # <--- 更新日志
                     response = requests.get(image_url, stream=True, timeout=60)
                     response.raise_for_status()
                     with open(local_path, 'wb') as f:
@@ -480,11 +484,6 @@ if __name__ == "__main__":
     # 为每种角色类型定义配置
     character_processing_configs = [
         {
-            "char_type": "nanpei",
-            "input_dir": "data/tmp/nanpei",
-            "workflow": "workflow/FLUX-0506-nanpei.json" # 相对于脚本或当前工作目录
-        },
-        {
             "char_type": "nanzhu",
             "input_dir": "data/tmp/nanzhu",
             "workflow": "workflow/FLUX-0506-nanzhu.json" # 相对于脚本或当前工作目录
@@ -492,13 +491,22 @@ if __name__ == "__main__":
         {
             "char_type": "nvzhu",
             "input_dir": "data/tmp/nvzhu",
-            "workflow": "workflow/FLUX-0506-nvzhu.json"   # 相对于脚本或当前工作目录
+            "workflow": "workflow/FLUX-0506-nvzhu.json"   # 相হেতু脚本或当前工作目录
+        },
+        {
+            "char_type": "nanpei",
+            "input_dir": "data/tmp/nanpei",
+            "workflow": "workflow/FLUX-0506-nanpei.json" # 相对于脚本或当前工作目录
         },
     ]
 
     total_successful_runs = 0
     total_failed_runs = 0
     
+    # --- 新增：定义运行轮数 ---
+    TOTAL_RUNS_PER_IMAGE = 5 
+    # --- 修改结束 ---
+
     # 所有运行的通用输出文件夹
     # OUTPUT_FOLDER 是全局定义的
 
@@ -512,6 +520,7 @@ if __name__ == "__main__":
         print(f"===== 输入目录: {input_image_dir} =====")
         print(f"===== 工作流文件: {workflow_file} =====")
         print(f"===== 输出目录: {os.path.abspath(OUTPUT_FOLDER)} =====")
+        print(f"===== 每张原图将生成: {TOTAL_RUNS_PER_IMAGE} 张图片 =====") # <--- 新增日志
         print(f"======================================================================")
 
         # 为此角色类型及其特定工作流实例化测试器
@@ -534,30 +543,47 @@ if __name__ == "__main__":
 
         print(f"在 {input_image_dir} 中找到 {len(image_files)} 张图片。将逐一处理...")
         
-        char_successful_runs = 0
-        char_failed_runs = 0
+        char_successful_runs_total_outputs = 0 # 按输出图片数统计
+        char_failed_runs_total_outputs = 0     # 按输出图片数统计
 
         for image_path in image_files:
-            print(f"\n----- 开始处理图片: {os.path.basename(image_path)} (类型: {char_type}) -----")
-            success = tester.run_test(image_path)
-            if success:
-                char_successful_runs += 1
-                total_successful_runs += 1
-                print(f"----- 成功处理图片: {os.path.basename(image_path)} (类型: {char_type}) -----")
-            else:
-                char_failed_runs += 1
-                total_failed_runs += 1
-                print(f"----- 处理图片失败: {os.path.basename(image_path)} (类型: {char_type}) -----")
-            # time.sleep(2) # 图片之间的可选延迟
+            print(f"\n===== 开始处理原图: {os.path.basename(image_path)} (类型: {char_type}) - 将运行 {TOTAL_RUNS_PER_IMAGE} 轮 =====")
+            successful_outputs_for_this_image = 0
+            failed_outputs_for_this_image = 0
+
+            # --- 新增：针对每张图片运行多轮 ---
+            for run_number in range(1, TOTAL_RUNS_PER_IMAGE + 1):
+                print(f"\n----- 原图 '{os.path.basename(image_path)}' - 第 {run_number}/{TOTAL_RUNS_PER_IMAGE} 轮处理开始 -----")
+                success = tester.run_test(image_path) # run_test 内部会调用 process_image，然后下载带时间戳的图片
+                if success:
+                    # tester.run_test 返回 True 表示该轮至少生成了一张图片
+                    # 由于 download_output_images 返回的是路径列表，我们可以更精确地统计
+                    # 但为了简单起见，如果 run_test 返回 True，我们就认为这一轮的"主要任务"成功了
+                    successful_outputs_for_this_image += 1 
+                    char_successful_runs_total_outputs +=1
+                    total_successful_runs +=1 # 这里可以理解为成功执行的"轮次"
+                    print(f"----- 原图 '{os.path.basename(image_path)}' - 第 {run_number}/{TOTAL_RUNS_PER_IMAGE} 轮处理成功 -----")
+                else:
+                    failed_outputs_for_this_image += 1
+                    char_failed_runs_total_outputs +=1
+                    total_failed_runs +=1 # 失败的"轮次"
+                    print(f"----- 原图 '{os.path.basename(image_path)}' - 第 {run_number}/{TOTAL_RUNS_PER_IMAGE} 轮处理失败 -----")
+                # time.sleep(1) # 可选，每轮之间的短暂延迟
+            # --- 修改结束 ---
+            
+            print(f"===== 原图 '{os.path.basename(image_path)}' 处理完成: 成功生成 {successful_outputs_for_this_image} 张, 失败 {failed_outputs_for_this_image} 次尝试 =====")
+            # time.sleep(2) # 图片之间的可选延迟 (处理完一张原图的所有轮次后)
 
         print(f"\n--- 角色类型总结: {char_type.upper()} ---")
-        print(f"成功处理: {char_successful_runs} 张图片")
-        print(f"处理失败: {char_failed_runs} 张图片")
+        # 更新这里的统计口径，现在是基于总的输出尝试次数
+        print(f"总共成功生成的图片数 (或成功轮次数): {char_successful_runs_total_outputs}")
+        print(f"总共处理失败的图片数 (或失败轮次数): {char_failed_runs_total_outputs}")
 
     print(f"\n\n======================================================================")
     print(f"===== 所有处理完成 =====")
-    print(f"总共成功处理的图片 (所有类型): {total_successful_runs}")
-    print(f"总共处理失败的图片 (所有类型): {total_failed_runs}")
+    # 更新这里的统计口径
+    print(f"总共成功生成的图片数 (或成功轮次数，所有类型): {total_successful_runs}")
+    print(f"总共处理失败的图片数 (或失败轮次数，所有类型): {total_failed_runs}")
     print(f"所有结果已保存到: {os.path.abspath(OUTPUT_FOLDER)}")
     print(f"======================================================================")
 
