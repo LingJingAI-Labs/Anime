@@ -140,7 +140,7 @@
   },
   "1615": {
     "inputs": {
-      "ckpt_name": "niji-动漫二次元-sdxl_2.0.safetensors"
+      "ckpt_name": "CHEYENNE_v20.safetensors"
     },
     "class_type": "CheckpointLoaderSimple",
     "_meta": {

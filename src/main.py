@@ -188,7 +188,7 @@ def main():
 
             # 检测角色类型
             char_type = args.char  # 优先使用命令行指定的角色
-            
+
             # 如果没有指定角色并且启用了 YOLO 检测
             if not char_type and not args.no_yolo and absolute_model_path:
                 print(f"使用 YOLO 检测角色类型...")
@@ -197,23 +197,36 @@ def main():
                     print(f"检测到角色类型: {char_type}")
                 else:
                     print(f"未检测到角色类型，将使用默认工作流")
-                    
+
             # 如果检测到或指定了角色，更新工作流
             if char_type:
                 redrawer.set_workflow_for_char(char_type)
-                
-            # 处理图像
-            result_files = redrawer.process_image(image_path)
-            
-            if result_files:
-                all_redraw_results.extend(result_files)
+
+            # --- 修改开始: 对每张图片处理 6 次 ---
+            print(f"开始对图像 {os.path.basename(image_path)} 进行 6 次转绘...")
+            single_image_results = []
+            for run_count in range(6):
+                print(f"  第 {run_count + 1}/6 次处理...")
+                # 处理图像
+                result_files = redrawer.process_image(image_path)
+
+                if result_files:
+                    single_image_results.extend(result_files)
+                    # print(f"    成功生成: {result_files}") # 可以取消注释以查看每次生成的文件
+                else:
+                    print(f"  第 {run_count + 1}/6 次处理图像失败: {os.path.basename(image_path)}")
+                    # 可以选择在这里停止或继续处理下一次
+
+            if single_image_results:
+                print(f"图像 {os.path.basename(image_path)} 的 6 次转绘完成，共生成 {len(single_image_results)} 个文件。")
+                all_redraw_results.extend(single_image_results)
             else:
-                print(f"处理图像失败: {os.path.basename(image_path)}")
-                # 可以选择在这里停止或继续处理下一张
+                 print(f"图像 {os.path.basename(image_path)} 的 6 次转绘均未成功生成文件。")
+            # --- 修改结束 ---
 
         print("\n--- 所有帧处理完毕 ---")
         if all_redraw_results:
-            print("成功生成的转绘文件:")
+            print(f"总共成功生成的转绘文件数量: {len(all_redraw_results)}")
             # for f_path in all_redraw_results:
             #     print(f"- {f_path}")
         else:

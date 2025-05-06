@@ -6,7 +6,7 @@
       "vae_name": "Baked VAE",
       "clip_skip": -2,
       "lora1_name": "nvzhu.safetensors",
-      "lora1_model_strength": 0.86,
+      "lora1_model_strength": 0.8,
       "lora1_clip_strength": 1,
       "lora2_name": "None",
       "lora2_model_strength": 1,
@@ -29,7 +29,7 @@
       "empty_latent_width": 720,
       "empty_latent_height": 1280,
       "batch_size": 1,
-      "seed": 246707253380874,
+      "seed": 297995270828207,
       "model_override": [
         "3384",
         0
@@ -86,9 +86,9 @@
   "641": {
     "inputs": {
       "add_noise": true,
-      "noise_seed": 90225809032485,
+      "noise_seed": 5913925381001,
       "steps": 20,
-      "cfg": 4,
+      "cfg": 2.5,
       "sampler_name": "dpmpp_3m_sde_gpu",
       "scheduler": "karras",
       "start_at_step": 0,
@@ -140,7 +140,7 @@
   },
   "1615": {
     "inputs": {
-      "ckpt_name": "niji-动漫二次元-sdxl_2.0.safetensors"
+      "ckpt_name": "CHEYENNE_v20.safetensors"
     },
     "class_type": "CheckpointLoaderSimple",
     "_meta": {
@@ -163,7 +163,7 @@
   },
   "2690": {
     "inputs": {
-      "image": "test-05_keyframe_00m26s300ms_09.jpg",
+      "image": "test-05_keyframe_01m02s799ms_22.jpg",
       "upload": "image"
     },
     "class_type": "LoadImage",
@@ -224,7 +224,7 @@
       "preset": "PLUS (kolors genernal)",
       "lora_strength": 0.6,
       "provider": "CUDA",
-      "weight": 0.35000000000000003,
+      "weight": 0.55,
       "weight_faceidv2": 1,
       "weight_type": "style transfer",
       "combine_embeds": "concat",
@@ -252,7 +252,7 @@
   },
   "3385": {
     "inputs": {
-      "image": "test-ref-1.webp",
+      "image": "test-05_keyframe_00m45s833ms_16.jpg",
       "upload": "image"
     },
     "class_type": "LoadImage",
@@ -292,7 +292,7 @@
   },
   "3394": {
     "inputs": {
-      "prompt": "prompt"
+      "prompt": "anime style,fqian, 1girl, forehead mark, hair stick"
     },
     "class_type": "CR Prompt Text",
     "_meta": {

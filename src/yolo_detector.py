@@ -18,7 +18,7 @@ def image_inference(image_path, model_path):
     """
     # 有效标签列表
     valid_labels = ["nanzhu", "nvzhu", "nanpei", "nvpei"]
-    DEFAULT_LABEL = "nanzhu"  # 设置默认标签为nanzhu
+    DEFAULT_LABEL = "nanpei"  # 设置默认标签为nanzhu
     
     # 设备检查
     if torch.backends.mps.is_available():
@@ -54,7 +54,7 @@ def image_inference(image_path, model_path):
     
     # 处理结果
     if not results or len(results[0].boxes) == 0:
-        print("未检测到任何目标，默认返回nanzhu")
+        print("未检测到任何目标，默认返回nanpei")
         return DEFAULT_LABEL  # 无检测结果时返回默认标签
     
     # 找出最大面积的检测框

@@ -68,6 +68,7 @@ def generate_anime_prompt(image_path: str) -> str | None:
         "请专注于捕捉原始图像的精髓，并将其转化为动漫美学。\n"
         "如果是男性请务必在提示词开头添加'tianji, 1boy'\n"
         "如果是女性请务必在提示词开头添加'fqian, 1girl, forehead mark, hair stick'\n"
+        "如果图像中没有出现人物/人脸，则在提示词开头添加'Empty shot'\n"
         "输出只需要包含生成的英文提示词本身，不要添加任何额外的解释或说明文字。"
     )
 
@@ -162,7 +163,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--image_path", # 参数名称
-        default="data/initial_frames/test-05_keyframe_00m00s000ms_01.jpg",
+        default="data/initial_frames/test-05_keyframe_00m06s833ms_03.jpg",
         type=str,      # 参数类型
         help="需要生成提示词的输入图像文件路径。" # 帮助信息
     )
