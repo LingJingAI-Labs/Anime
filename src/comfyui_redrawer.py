@@ -16,8 +16,9 @@ import base64 # 需要导入 base64
 from prompt_reasoning import generate_anime_prompt
 
 # 配置参数
-SERVER_ADDRESS = "http://106.54.35.113:6889"  # ComfyUI服务器地址
-WORKFLOW_FILE = "workflow/T2I-nanpei-wj.json"  # 默认工作流，可以被覆盖
+SERVER_ADDRESS = "http://36.143.229.162:6889"  # ComfyUI服务器地址
+# WORKFLOW_FILE = "workflow/T2I-nanpei-wj.json"  # 默认工作流，可以被覆盖
+WORKFLOW_FILE = "workflow/FLUX-0506-2203.json"  # 默认工作流，可以被覆盖
 OUTPUT_FOLDER = "data/redraw_results"
 MONITOR_INTERVAL = 0.5  # 监控间隔(秒)
 MAX_WAIT_TIME = 300  # 最大等待时间
@@ -27,15 +28,15 @@ SSH_CONFIG = {
     "hostname": "106.54.35.113",
     "port": 22,
     "username": "root",
-    "password": "Lj666666",
+    "password": "Lj666666!",
     "timeout": 10
 }
 
 # IMAGE_INPUT_NODE_ID = "74" # 输入图像节点的ID
 # PROMPT_NODE_ID = "155"    # <--- 新增: 定义目标提示词节点的ID
 
-IMAGE_INPUT_NODE_ID = "2690" # 输入图像节点的ID
-PROMPT_NODE_ID = "3394"    # <--- 新增: 定义目标提示词节点的ID
+IMAGE_INPUT_NODE_ID = "74" # 输入图像节点的ID
+PROMPT_NODE_ID = "227"    # <--- 新增: 定义目标提示词节点的ID
 
 class RemoteMonitor:
     """通过SSH连接监控远程服务器资源"""
@@ -218,9 +219,9 @@ class ComfyUITester:
         """根据角色类型设置相应的工作流文件"""
         script_dir = os.path.dirname(os.path.abspath(__file__))
         char_workflows = {
-            "nanzhu": "workflow/T2I-nanzhu-wj.json",
-            "nvzhu": "workflow/T2I-nvzhu-wj.json",
-            "nanpei": "workflow/T2I-nanpei-wj.json"
+            "nanzhu": "workflow/FLUX-0506-2203.json",
+            "nvzhu": "workflow/FLUX-0506-2203.json",
+            "nanpei": "workflow/FLUX-0506-2203.json"
         }
         new_workflow = char_workflows.get(char)
         if new_workflow:
@@ -299,7 +300,7 @@ class ComfyUITester:
             elif "prompt" not in modified_workflow[PROMPT_NODE_ID]["inputs"]:
                  print(f"警告: 目标提示词节点 {PROMPT_NODE_ID} 的 'inputs' 中缺少 'prompt' 键。无法更新提示词。")
             else:
-                modified_workflow[PROMPT_NODE_ID]["inputs"]["prompt"] = generated_prompt
+                modified_workflow[PROMPT_NODE_ID]["inputs"]["text"] = generated_prompt
                 print(f"已更新提示词节点 {PROMPT_NODE_ID} 的 prompt 为生成的动漫风格提示词。")
         else:
              print(f"未提供生成的提示词，节点 {PROMPT_NODE_ID} 将使用工作流中的默认提示词。")
@@ -404,7 +405,7 @@ class ComfyUITester:
         anime_prompt = generate_anime_prompt(image_path)
         if anime_prompt:
             # 打印部分提示词以确认
-            print(f"  成功生成提示词 (前100字符): {anime_prompt[:100]}...")
+            print(f"  成功生成提示词 (前300字符): {anime_prompt[:300]}...")
         else:
             print("  未能生成动漫风格提示词，将使用工作流中的默认提示词。")
             # anime_prompt 将为 None

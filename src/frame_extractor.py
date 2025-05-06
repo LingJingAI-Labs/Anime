@@ -724,13 +724,13 @@ def visualize_results(keyframes, keyframe_images, frame_diffs, flow_magnitudes,
     return fig
 
 if __name__ == "__main__":
-    video_path = "input/Episode-1-1.mp4"
+    video_path = "input/2.mp4"
     
     # 指定最小关键帧数量为6，最大为8，并保存到output文件夹
     keyframes, images, chart_path, image_paths = extract_frames(video_path, 
                                                 sensitivity=2.5, 
-                                                min_keyframes=6, 
-                                                max_keyframes=12,
+                                                min_keyframes=50, 
+                                                max_keyframes=60,
                                                 output_dir="output")
     
     print(f"生成的关键帧可视化已保存至: {chart_path}")
