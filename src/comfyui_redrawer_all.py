@@ -198,22 +198,7 @@ class ComfyUITester:
         以匹配工作流中 LoadImage 节点的期望。
         返回服务器上可引用的文件名（包含子文件夹，例如 "clipspace/mask_name.png"）。
         """
-        # 从 FIXED_MASK_LOCAL_PATH 中提取预期的服务器子文件夹和文件名
-        # 例如 "data/tmp/clipspace-mask-1120941.png"
-        # 我们希望它在服务器上是 "clipspace/clipspace-mask-1120941.png" (相对于 input 目录)
-        
-        # 假设 FIXED_MASK_LOCAL_PATH 的结构是 ".../expected_subfolder_on_server/filename.ext"
-        # 或者我们直接知道服务器上的目标子文件夹
-        
-        # 根据错误日志 "image - Invalid image file: clipspace/clipspace-mask-1120941.png [input]"
-        # 服务器期望的子文件夹是 "clipspace"
-        # 服务器期望的文件名是 "clipspace-mask-1120941.png"
-        
         expected_server_subfolder = "clipspace" 
-        # mask_filename_on_server = os.path.basename(mask_local_path) # 这只是本地文件名
-
-        # 调用通用上传函数，明确指定服务器端的子文件夹
-        # _upload_single_image 返回的已经是 subfolder/filename 格式或仅 filename
         uploaded_mask_ref = self._upload_single_image(
             mask_local_path, 
             subfolder=expected_server_subfolder, 
@@ -229,17 +214,6 @@ class ComfyUITester:
         data = json.dumps(payload_dict)
         
         log_prefix_thread = f"[{threading.current_thread().name}] " if not threading.current_thread().name.startswith("MainThread") else ""
-        
-        # print(f"{log_prefix_thread}将要发送的Prompt数据 (前1000字符，如果太长): {data[:1000]}...")
-        # if len(data) > 1000:
-        #     print(f"{log_prefix_thread}... (数据总长度: {len(data)})")
-        # debug_file_name = f"debug_prompt_payload_{threading.current_thread().name}_{datetime.now().strftime('%Y%m%d%H%M%S%f')}.json"
-        # try:
-        #     with open(debug_file_name, "w", encoding='utf-8') as f:
-        #         json.dump(payload_dict, f, indent=2,ensure_ascii=False)
-        #     print(f"{log_prefix_thread}完整的Prompt数据已保存到: {debug_file_name}")
-        # except Exception as e_write:
-        #     print(f"{log_prefix_thread}保存调试Prompt数据到文件时出错: {e_write}")
 
         try:
             response = requests.post(f"{self.api_url}/prompt", headers=headers, data=data, timeout=60)
@@ -315,16 +289,8 @@ class ComfyUITester:
                 
                 # subfolder 参数：ComfyUI /view API 通常需要它，即使为空
                 url_params['subfolder'] = subfolder if subfolder is not None else "" 
-                
-                # if img_type:
-                #     url_params['type'] = img_type
+
                 url_params['type'] = 'output'
-                # else:
-                    # 如果历史记录中没有 type，但我们知道它是输出或临时，可以尝试默认
-                    # 但最好是历史记录提供 type。如果缺失，可能会导致在错误的目录中查找。
-                    # print(f"{log_prefix_thread}  警告: 图像数据中缺少 'type' 字段: {image_data}。下载可能失败或在错误目录中查找。")
-                    # 你可以根据经验设置一个默认 type，例如 'output'，但这有风险
-                    # url_params['type'] = 'output' # 示例：如果缺失则默认为 output
 
                 name_part, ext_part = os.path.splitext(filename)
                 timestamp = datetime.now().strftime("%Y%m%d%H%M%S%f")
@@ -336,9 +302,6 @@ class ComfyUITester:
                     print(f"{log_prefix_thread}  准备下载。请求URL: {self.api_url}/view, 请求参数: {url_params}")
                     
                     response = requests.get(f"{self.api_url}/view", params=url_params, stream=True, timeout=60)
-                    
-                    # 打印实际发送的URL (requests 会在 prepped_request 中构建好)
-                    # print(f"{log_prefix_thread}  实际发送的请求URL: {response.request.url}") # response.request 是 PreparedRequest 对象
                     
                     response.raise_for_status() # 如果是404或其他错误会在这里抛出异常
                     
@@ -522,9 +485,6 @@ class ComfyUITester:
                         print(f"{log_prefix}API 轮询: 无法获取到 Prompt ID {prompt_id} 的有效历史记录。已耗时: {elapsed:.1f}s")
                         last_log_time = current_time # 更新日志时间戳
 
-            # 如果上面没有 return，则在循环结束前更新 last_log_time (确保至少每2秒检查一次API)
-            # 但实际API调用由 if current_time - last_log_time >= 2.0 控制
-            # 这里主要是为了下一次循环的日志打印控制
             if not (current_time - last_log_time >= 10.0 or last_log_time == 0): # 如果没打印日志
                 if current_time - last_log_time >= 2.0 : # 但API已调用
                     last_log_time = current_time # 更新，使得下次等待10s打印
@@ -613,12 +573,8 @@ if __name__ == "__main__":
 
     # --- 每个原图要并发运行的任务数 ---
     CONCURRENT_TASKS_PER_IMAGE = 1 # 设置为5以进行并发处理
-    # ---
 
-    # --- （可选）图片之间的延时（秒） ---
-    # 鉴于之前观察到的服务器负载问题，建议加入延时
     DELAY_BETWEEN_IMAGES = 2 # 例如暂停5秒
-    # ---
 
     # 确保 FIXED_MASK_LOCAL_PATH 定义的蒙版文件存在
     if not os.path.exists(FIXED_MASK_LOCAL_PATH):
@@ -717,9 +673,7 @@ if __name__ == "__main__":
             # 添加日志以查看 thread_results 的内容
             print(f"主线程：开始统计图片 '{image_base_name}' 的结果，thread_results 列表内容: {thread_results}")
             successful_tasks_for_this_image = sum(1 for res in thread_results if res is True)
-            # 失败的任务数 = 总任务数 - 成功的任务数 (更健壮的计算方式)
-            # 这里假设 total_runs = CONCURRENT_TASKS_PER_IMAGE
-            # 但更精确的是看 thread_results 的实际长度，以防有线程未能添加结果
+
             failed_tasks_for_this_image = len(thread_results) - successful_tasks_for_this_image
 
             # 更新总计数器
