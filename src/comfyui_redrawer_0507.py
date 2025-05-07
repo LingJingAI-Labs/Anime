@@ -17,7 +17,7 @@ from prompt_reasoning import generate_anime_prompt # 确保此文件可用
 SERVER_ADDRESS = "http://36.143.229.169:8188/"  # ComfyUI 服务器地址
 
 # --- 迭代控制 ---
-NUM_ITERATIONS = 4 # 所有图片完整处理流程的运行次数
+NUM_ITERATIONS = 4 # 所有图片迭代次数
 
 # --- 路径定义 ---
 BASE_INPUT_DIR = "data/250507"
