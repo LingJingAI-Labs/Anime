@@ -1,0 +1,476 @@
+{
+  "3": {
+    "inputs": {
+      "ckpt_name": "flux1-dev-fp8.safetensors"
+    },
+    "class_type": "CheckpointLoaderSimple",
+    "_meta": {
+      "title": "Checkpoint加载器(简易)"
+    }
+  },
+  "12": {
+    "inputs": {
+      "lora_01": "CHMR_style_V3.safetensors",
+      "strength_01": 0.5000000000000001,
+      "lora_02": "mori/char02萧灵#/char02.safetensors",
+      "strength_02": 1.0000000000000002,
+      "lora_03": "Flux_Dev_4_step_lora.safetensors",
+      "strength_03": 1.0000000000000002,
+      "lora_04": "None",
+      "strength_04": 0,
+      "model": [
+        "3",
+        0
+      ],
+      "clip": [
+        "3",
+        1
+      ]
+    },
+    "class_type": "Lora Loader Stack (rgthree)",
+    "_meta": {
+      "title": "LoRA堆加载器"
+    }
+  },
+  "14": {
+    "inputs": {
+      "text": "anime,"
+    },
+    "class_type": "Text Multiline",
+    "_meta": {
+      "title": "多行文本"
+    }
+  },
+  "74": {
+    "inputs": {
+      "image": "2_keyframe_00m09s800ms_05.jpg"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "加载图像"
+    }
+  },
+  "78": {
+    "inputs": {
+      "seed": 925087969991901,
+      "steps": 8,
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 0.9500000000000002,
+      "model": [
+        "12",
+        0
+      ],
+      "positive": [
+        "189",
+        0
+      ],
+      "negative": [
+        "125",
+        1
+      ],
+      "latent_image": [
+        "147",
+        0
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "K采样器"
+    }
+  },
+  "99": {
+    "inputs": {
+      "text": [
+        "185",
+        0
+      ],
+      "clip": [
+        "12",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP文本编码器"
+    }
+  },
+  "100": {
+    "inputs": {
+      "guidance": 3.5,
+      "conditioning": [
+        "99",
+        0
+      ]
+    },
+    "class_type": "FluxGuidance",
+    "_meta": {
+      "title": "Flux引导"
+    }
+  },
+  "101": {
+    "inputs": {
+      "conditioning": [
+        "99",
+        0
+      ]
+    },
+    "class_type": "ConditioningZeroOut",
+    "_meta": {
+      "title": "条件零化"
+    }
+  },
+  "102": {
+    "inputs": {
+      "samples": [
+        "78",
+        0
+      ],
+      "vae": [
+        "3",
+        2
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE解码"
+    }
+  },
+  "114": {
+    "inputs": {
+      "control_net_name": "Shakker-LabsFLUX.1-dev-ControlNet-Union-Pro-2.0.safetensors"
+    },
+    "class_type": "ControlNetLoader",
+    "_meta": {
+      "title": "ControlNet加载器"
+    }
+  },
+  "116": {
+    "inputs": {
+      "control_net_name": "Shakker-LabsFLUX.1-dev-ControlNet-Union-Pro-2.0.safetensors"
+    },
+    "class_type": "ControlNetLoader",
+    "_meta": {
+      "title": "ControlNet加载器"
+    }
+  },
+  "118": {
+    "inputs": {
+      "preprocessor": "CannyEdgePreprocessor",
+      "resolution": 512,
+      "image": [
+        "202",
+        0
+      ]
+    },
+    "class_type": "AIO_Preprocessor",
+    "_meta": {
+      "title": "Aux集成预处理器"
+    }
+  },
+  "121": {
+    "inputs": {
+      "control_net_name": "Shakker-LabsFLUX.1-dev-ControlNet-Union-Pro-2.0.safetensors"
+    },
+    "class_type": "ControlNetLoader",
+    "_meta": {
+      "title": "ControlNet加载器"
+    }
+  },
+  "122": {
+    "inputs": {
+      "preprocessor": "DepthAnythingV2Preprocessor",
+      "resolution": 512,
+      "image": [
+        "202",
+        0
+      ]
+    },
+    "class_type": "AIO_Preprocessor",
+    "_meta": {
+      "title": "Aux集成预处理器"
+    }
+  },
+  "123": {
+    "inputs": {
+      "strength": 0.10000000000000002,
+      "start_percent": 0,
+      "end_percent": 0.6000000000000001,
+      "positive": [
+        "124",
+        0
+      ],
+      "negative": [
+        "124",
+        1
+      ],
+      "control_net": [
+        "116",
+        0
+      ],
+      "vae": [
+        "3",
+        2
+      ],
+      "image": [
+        "118",
+        0
+      ]
+    },
+    "class_type": "ControlNetApplySD3",
+    "_meta": {
+      "title": "ControlNet应用"
+    }
+  },
+  "124": {
+    "inputs": {
+      "strength": 0.6000000000000001,
+      "start_percent": 0,
+      "end_percent": 0.6000000000000001,
+      "positive": [
+        "100",
+        0
+      ],
+      "negative": [
+        "101",
+        0
+      ],
+      "control_net": [
+        "114",
+        0
+      ],
+      "vae": [
+        "3",
+        2
+      ],
+      "image": [
+        "122",
+        0
+      ]
+    },
+    "class_type": "ControlNetApplySD3",
+    "_meta": {
+      "title": "ControlNet应用"
+    }
+  },
+  "125": {
+    "inputs": {
+      "strength": 0.5000000000000001,
+      "start_percent": 0,
+      "end_percent": 0.7000000000000002,
+      "positive": [
+        "123",
+        0
+      ],
+      "negative": [
+        "123",
+        1
+      ],
+      "control_net": [
+        "121",
+        0
+      ],
+      "vae": [
+        "3",
+        2
+      ],
+      "image": [
+        "139",
+        0
+      ]
+    },
+    "class_type": "ControlNetApplySD3",
+    "_meta": {
+      "title": "ControlNet应用"
+    }
+  },
+  "139": {
+    "inputs": {
+      "detect_hand": "enable",
+      "detect_body": "enable",
+      "detect_face": "enable",
+      "resolution": 512,
+      "scale_stick_for_xinsr_cn": "disable",
+      "image": [
+        "202",
+        0
+      ]
+    },
+    "class_type": "OpenposePreprocessor",
+    "_meta": {
+      "title": "Openpose姿态预处理器"
+    }
+  },
+  "147": {
+    "inputs": {
+      "pixels": [
+        "202",
+        0
+      ],
+      "vae": [
+        "3",
+        2
+      ]
+    },
+    "class_type": "VAEEncode",
+    "_meta": {
+      "title": "VAE编码"
+    }
+  },
+  "177": {
+    "inputs": {
+      "images": [
+        "102",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "预览图像"
+    }
+  },
+  "181": {
+    "inputs": {
+      "text": "char02"
+    },
+    "class_type": "Text Multiline",
+    "_meta": {
+      "title": "多行文本"
+    }
+  },
+  "185": {
+    "inputs": {
+      "text1": [
+        "14",
+        0
+      ],
+      "text2": [
+        "181",
+        0
+      ],
+      "text3": [
+        "227",
+        0
+      ],
+      "delimiter": ","
+    },
+    "class_type": "ttN concat",
+    "_meta": {
+      "title": "文本联结"
+    }
+  },
+  "188": {
+    "inputs": {
+      "clip_name": "sigclip_vision_patch14_384.safetensors"
+    },
+    "class_type": "CLIPVisionLoader",
+    "_meta": {
+      "title": "CLIP视觉加载器"
+    }
+  },
+  "189": {
+    "inputs": {
+      "downsampling_factor": 2,
+      "downsampling_function": "area",
+      "mode": "autocrop with mask",
+      "weight": 1,
+      "autocrop_margin": 0.1,
+      "conditioning": [
+        "125",
+        0
+      ],
+      "style_model": [
+        "191",
+        0
+      ],
+      "clip_vision": [
+        "188",
+        0
+      ],
+      "image": [
+        "190",
+        0
+      ],
+      "mask": [
+        "190",
+        1
+      ]
+    },
+    "class_type": "ReduxAdvanced",
+    "_meta": {
+      "title": "ReduxAdvanced"
+    }
+  },
+  "190": {
+    "inputs": {
+      "image": "clipspace/clipspace-mask-2623383.0999999046.png [input]"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "加载图像"
+    }
+  },
+  "191": {
+    "inputs": {
+      "style_model_name": "flux1-redux-dev.safetensors"
+    },
+    "class_type": "StyleModelLoader",
+    "_meta": {
+      "title": "风格模型加载器"
+    }
+  },
+  "202": {
+    "inputs": {
+      "width": 720,
+      "height": 0,
+      "interpolation": "nearest",
+      "method": "keep proportion",
+      "condition": "always",
+      "multiple_of": 0,
+      "image": [
+        "228",
+        0
+      ]
+    },
+    "class_type": "ImageResize+",
+    "_meta": {
+      "title": "图像缩放"
+    }
+  },
+  "227": {
+    "inputs": {
+      "text": ""
+    },
+    "class_type": "Text Multiline",
+    "_meta": {
+      "title": "多行文本"
+    }
+  },
+  "228": {
+    "inputs": {
+      "device_mode": "Prefer GPU",
+      "image": [
+        "74",
+        0
+      ],
+      "mask": [
+        "229",
+        1
+      ]
+    },
+    "class_type": "LaMaInpaint",
+    "_meta": {
+      "title": "LaMa Remove Object"
+    }
+  },
+  "229": {
+    "inputs": {
+      "image": "subtitle-mask.png"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "加载图像"
+    }
+  }
+}

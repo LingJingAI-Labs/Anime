@@ -5,12 +5,12 @@
     },
     "class_type": "CheckpointLoaderSimple",
     "_meta": {
-      "title": "Checkpoint加载器（简易）"
+      "title": "Checkpoint加载器(简易)"
     }
   },
   "12": {
     "inputs": {
-      "lora_01": "mori/CHMR_style/CHMR_style_V3.safetensors",
+      "lora_01": "CHMR_style_V3.safetensors",
       "strength_01": 0.5000000000000001,
       "lora_02": "mori/char01秦云#/char01_V3.safetensors",
       "strength_02": 1.0000000000000002,
@@ -29,7 +29,7 @@
     },
     "class_type": "Lora Loader Stack (rgthree)",
     "_meta": {
-      "title": "Lora Loader Stack (rgthree)"
+      "title": "LoRA堆加载器"
     }
   },
   "14": {
@@ -38,7 +38,7 @@
     },
     "class_type": "Text Multiline",
     "_meta": {
-      "title": "Text Multiline"
+      "title": "多行文本"
     }
   },
   "74": {
@@ -52,7 +52,7 @@
   },
   "78": {
     "inputs": {
-      "seed": 201231662016559,
+      "seed": 925087969991901,
       "steps": 8,
       "cfg": 1,
       "sampler_name": "euler",
@@ -93,7 +93,7 @@
     },
     "class_type": "CLIPTextEncode",
     "_meta": {
-      "title": "CLIP文本编码"
+      "title": "CLIP文本编码器"
     }
   },
   "100": {
@@ -143,7 +143,7 @@
     },
     "class_type": "ControlNetLoader",
     "_meta": {
-      "title": "加载ControlNet模型"
+      "title": "ControlNet加载器"
     }
   },
   "116": {
@@ -152,7 +152,7 @@
     },
     "class_type": "ControlNetLoader",
     "_meta": {
-      "title": "加载ControlNet模型"
+      "title": "ControlNet加载器"
     }
   },
   "118": {
@@ -166,7 +166,7 @@
     },
     "class_type": "AIO_Preprocessor",
     "_meta": {
-      "title": "AIO Aux Preprocessor"
+      "title": "Aux集成预处理器"
     }
   },
   "121": {
@@ -175,7 +175,7 @@
     },
     "class_type": "ControlNetLoader",
     "_meta": {
-      "title": "加载ControlNet模型"
+      "title": "ControlNet加载器"
     }
   },
   "122": {
@@ -189,7 +189,7 @@
     },
     "class_type": "AIO_Preprocessor",
     "_meta": {
-      "title": "AIO Aux Preprocessor"
+      "title": "Aux集成预处理器"
     }
   },
   "123": {
@@ -220,7 +220,7 @@
     },
     "class_type": "ControlNetApplySD3",
     "_meta": {
-      "title": "应用ControlNet"
+      "title": "ControlNet应用"
     }
   },
   "124": {
@@ -251,7 +251,7 @@
     },
     "class_type": "ControlNetApplySD3",
     "_meta": {
-      "title": "应用ControlNet"
+      "title": "ControlNet应用"
     }
   },
   "125": {
@@ -282,31 +282,7 @@
     },
     "class_type": "ControlNetApplySD3",
     "_meta": {
-      "title": "应用ControlNet"
-    }
-  },
-  "135": {
-    "inputs": {
-      "anything": [
-        "102",
-        0
-      ]
-    },
-    "class_type": "easy cleanGpuUsed",
-    "_meta": {
-      "title": "清理显存占用"
-    }
-  },
-  "137": {
-    "inputs": {
-      "anything": [
-        "102",
-        0
-      ]
-    },
-    "class_type": "easy clearCacheAll",
-    "_meta": {
-      "title": "清除全部缓存"
+      "title": "ControlNet应用"
     }
   },
   "139": {
@@ -323,7 +299,7 @@
     },
     "class_type": "OpenposePreprocessor",
     "_meta": {
-      "title": "OpenPose Pose"
+      "title": "Openpose姿态预处理器"
     }
   },
   "147": {
@@ -360,7 +336,7 @@
     },
     "class_type": "Text Multiline",
     "_meta": {
-      "title": "Text Multiline"
+      "title": "多行文本"
     }
   },
   "185": {
@@ -381,7 +357,7 @@
     },
     "class_type": "ttN concat",
     "_meta": {
-      "title": "textConcat"
+      "title": "文本联结"
     }
   },
   "188": {
@@ -390,7 +366,7 @@
     },
     "class_type": "CLIPVisionLoader",
     "_meta": {
-      "title": "加载CLIP视觉"
+      "title": "CLIP视觉加载器"
     }
   },
   "189": {
@@ -399,7 +375,7 @@
       "downsampling_function": "area",
       "mode": "autocrop with mask",
       "weight": 1,
-      "autocrop_margin": 0.10000000000000002,
+      "autocrop_margin": 0.1,
       "conditioning": [
         "125",
         0
@@ -428,7 +404,7 @@
   },
   "190": {
     "inputs": {
-      "image": "clipspace/clipspace-mask-1120941.png [input]"
+      "image": "clipspace/clipspace-mask-2623383.0999999046.png [input]"
     },
     "class_type": "LoadImage",
     "_meta": {
@@ -441,7 +417,7 @@
     },
     "class_type": "StyleModelLoader",
     "_meta": {
-      "title": "加载风格模型"
+      "title": "风格模型加载器"
     }
   },
   "202": {
@@ -453,13 +429,13 @@
       "condition": "always",
       "multiple_of": 0,
       "image": [
-        "74",
+        "228",
         0
       ]
     },
     "class_type": "ImageResize+",
     "_meta": {
-      "title": "🔧 Image Resize"
+      "title": "图像缩放"
     }
   },
   "227": {
@@ -468,7 +444,33 @@
     },
     "class_type": "Text Multiline",
     "_meta": {
-      "title": "Text Multiline"
+      "title": "多行文本"
+    }
+  },
+  "228": {
+    "inputs": {
+      "device_mode": "Prefer GPU",
+      "image": [
+        "74",
+        0
+      ],
+      "mask": [
+        "229",
+        1
+      ]
+    },
+    "class_type": "LaMaInpaint",
+    "_meta": {
+      "title": "LaMa Remove Object"
+    }
+  },
+  "229": {
+    "inputs": {
+      "image": "subtitle-mask.png"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "加载图像"
     }
   }
 }

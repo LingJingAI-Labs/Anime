@@ -12,7 +12,7 @@
     "inputs": {
       "lora_01": "mori/CHMR_style/CHMR_style_V3.safetensors",
       "strength_01": 0.5000000000000001,
-      "lora_02": "mori/char02萧灵#/char02.safetensors",
+      "lora_02": "mori/char01秦云#/char01_V3.safetensors",
       "strength_02": 1.0000000000000002,
       "lora_03": "Flux_Dev_4_step_lora.safetensors",
       "strength_03": 1.0000000000000002,
@@ -356,7 +356,7 @@
   },
   "181": {
     "inputs": {
-      "text": "char02"
+      "text": "char01"
     },
     "class_type": "Text Multiline",
     "_meta": {
@@ -469,6 +469,19 @@
     "class_type": "Text Multiline",
     "_meta": {
       "title": "Text Multiline"
+    }
+  },
+  "228": {
+    "inputs": {
+      "filename_prefix": "ComfyUI",
+      "images": [
+        "102",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "保存图像"
     }
   }
 }
