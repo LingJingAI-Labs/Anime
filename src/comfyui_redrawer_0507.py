@@ -17,7 +17,7 @@ from prompt_reasoning import generate_anime_prompt # 确保此文件可用
 SERVER_ADDRESS = "http://36.143.229.169:8188/"  # ComfyUI 服务器地址
 
 # --- 迭代控制 ---
-NUM_ITERATIONS = 4 # 所有图片迭代次数
+NUM_ITERATIONS = 8 # 所有图片迭代次数
 
 # --- 路径定义 ---
 BASE_INPUT_DIR = "data/250507"
@@ -417,7 +417,7 @@ if __name__ == "__main__":
             ])
             for shot_folder_name_calc in shot_folders_calc:
                 shot_images_dir_calc = os.path.join(scene_full_path_calc, shot_folder_name_calc)
-                current_workflow_filename_calc = f"FLUX-0507-{shot_folder_name_calc}.json"
+                current_workflow_filename_calc = f"FLUX-0508-{shot_folder_name_calc}.json"
                 current_workflow_path_calc = os.path.join(WORKFLOW_BASE_DIR, current_workflow_filename_calc)
                 if not os.path.exists(current_workflow_path_calc):
                     continue # 跳过没有工作流的镜头
@@ -465,7 +465,7 @@ if __name__ == "__main__":
                 current_scene_mask_path = None
 
             shot_images_dir = os.path.join(scene_full_path, shot_folder_name)
-            current_workflow_filename = f"FLUX-0507-{shot_folder_name}.json"
+            current_workflow_filename = f"FLUX-0508-{shot_folder_name}.json"
             current_workflow_path = os.path.join(WORKFLOW_BASE_DIR, current_workflow_filename)
             # 在预计算时已检查工作流是否存在，此处不再重复检查
             

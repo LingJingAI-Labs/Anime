@@ -1,0 +1,4222 @@
+{
+  "id": "b669780d-30b6-4ad5-a742-e0321bd71812",
+  "revision": 0,
+  "last_node_id": 276,
+  "last_link_id": 703,
+  "nodes": [
+    {
+      "id": 137,
+      "type": "easy clearCacheAll",
+      "pos": [
+        5070,
+        910
+      ],
+      "size": [
+        210,
+        26
+      ],
+      "flags": {},
+      "order": 45,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "输入任何",
+          "name": "anything",
+          "type": "*",
+          "link": 266
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "*",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-easy-use",
+        "ver": "389387308538e2790b89457ccb555f8329c97e86",
+        "Node name for S&R": "easy clearCacheAll"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 135,
+      "type": "easy cleanGpuUsed",
+      "pos": [
+        5070,
+        830
+      ],
+      "size": [
+        210,
+        26
+      ],
+      "flags": {},
+      "order": 44,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "输入任何",
+          "name": "anything",
+          "type": "*",
+          "link": 265
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "*",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-easy-use",
+        "ver": "389387308538e2790b89457ccb555f8329c97e86",
+        "Node name for S&R": "easy cleanGpuUsed"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 99,
+      "type": "CLIPTextEncode",
+      "pos": [
+        3640,
+        1140
+      ],
+      "size": [
+        230,
+        80
+      ],
+      "flags": {},
+      "order": 23,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "CLIP",
+          "name": "clip",
+          "type": "CLIP",
+          "link": 444
+        },
+        {
+          "label": "文本",
+          "name": "text",
+          "type": "STRING",
+          "widget": {
+            "name": "text"
+          },
+          "link": 458
+        }
+      ],
+      "outputs": [
+        {
+          "label": "条件",
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            145,
+            146
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.27",
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "widgets_values": [
+        "",
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "id": 100,
+      "type": "FluxGuidance",
+      "pos": [
+        3640,
+        1270
+      ],
+      "size": [
+        230,
+        60
+      ],
+      "flags": {},
+      "order": 30,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "条件",
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 145
+        }
+      ],
+      "outputs": [
+        {
+          "label": "条件",
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            144,
+            165,
+            167,
+            192
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.27",
+        "Node name for S&R": "FluxGuidance"
+      },
+      "widgets_values": [
+        3.5
+      ]
+    },
+    {
+      "id": 101,
+      "type": "ConditioningZeroOut",
+      "pos": [
+        3640,
+        1380
+      ],
+      "size": [
+        230,
+        60
+      ],
+      "flags": {},
+      "order": 31,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "条件",
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 146
+        }
+      ],
+      "outputs": [
+        {
+          "label": "条件",
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            143,
+            166,
+            194
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.27",
+        "Node name for S&R": "ConditioningZeroOut"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 115,
+      "type": "PreviewImage",
+      "pos": [
+        3300,
+        2310
+      ],
+      "size": [
+        210,
+        246
+      ],
+      "flags": {},
+      "order": 34,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "图像",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 176
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.27",
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [
+        ""
+      ]
+    },
+    {
+      "id": 114,
+      "type": "ControlNetLoader",
+      "pos": [
+        3210,
+        1940
+      ],
+      "size": [
+        330,
+        80
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "label": "ControlNet",
+          "name": "CONTROL_NET",
+          "shape": 3,
+          "type": "CONTROL_NET",
+          "slot_index": 0,
+          "links": [
+            183
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.24",
+        "Node name for S&R": "ControlNetLoader"
+      },
+      "widgets_values": [
+        "FLUX/Shakker-LabsFLUX.1-dev-ControlNet-Union-Pro-2.0.safetensors"
+      ],
+      "color": "#006691",
+      "bgcolor": "rgba(24,24,27,.9)"
+    },
+    {
+      "id": 187,
+      "type": "PreviewImage",
+      "pos": [
+        5580,
+        1730
+      ],
+      "size": [
+        520,
+        560
+      ],
+      "flags": {},
+      "order": 42,
+      "mode": 4,
+      "inputs": [
+        {
+          "label": "图像",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 462
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.27",
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [],
+      "color": "#c09430",
+      "bgcolor": "rgba(24,24,27,.9)"
+    },
+    {
+      "id": 118,
+      "type": "AIO_Preprocessor",
+      "pos": [
+        3580,
+        1820
+      ],
+      "size": [
+        320,
+        90
+      ],
+      "flags": {},
+      "order": 28,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "图像",
+          "name": "image",
+          "type": "IMAGE",
+          "link": 486
+        }
+      ],
+      "outputs": [
+        {
+          "label": "图像",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            177,
+            182
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui_controlnet_aux",
+        "ver": "83463c2e4b04e729268e57f638b4212e0da4badc",
+        "Node name for S&R": "AIO_Preprocessor"
+      },
+      "widgets_values": [
+        "CannyEdgePreprocessor",
+        512
+      ]
+    },
+    {
+      "id": 123,
+      "type": "ControlNetApplySD3",
+      "pos": [
+        3580,
+        2080
+      ],
+      "size": [
+        320,
+        186
+      ],
+      "flags": {},
+      "order": 38,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "正面条件",
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 179
+        },
+        {
+          "label": "负面条件",
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 180
+        },
+        {
+          "label": "ControlNet",
+          "name": "control_net",
+          "type": "CONTROL_NET",
+          "link": 181
+        },
+        {
+          "label": "VAE",
+          "name": "vae",
+          "type": "VAE",
+          "link": 471
+        },
+        {
+          "label": "图像",
+          "name": "image",
+          "type": "IMAGE",
+          "link": 182
+        }
+      ],
+      "outputs": [
+        {
+          "label": "正面条件",
+          "name": "positive",
+          "shape": 3,
+          "type": "CONDITIONING",
+          "slot_index": 0,
+          "links": [
+            185
+          ]
+        },
+        {
+          "label": "负面条件",
+          "name": "negative",
+          "shape": 3,
+          "type": "CONDITIONING",
+          "slot_index": 1,
+          "links": [
+            186
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.24",
+        "Node name for S&R": "ControlNetApplySD3"
+      },
+      "widgets_values": [
+        0.10000000000000002,
+        0,
+        0.6000000000000001
+      ],
+      "color": "#006691",
+      "bgcolor": "rgba(24,24,27,.9)"
+    },
+    {
+      "id": 116,
+      "type": "ControlNetLoader",
+      "pos": [
+        3580,
+        1960
+      ],
+      "size": [
+        320,
+        60
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "label": "ControlNet",
+          "name": "CONTROL_NET",
+          "shape": 3,
+          "type": "CONTROL_NET",
+          "slot_index": 0,
+          "links": [
+            181
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.24",
+        "Node name for S&R": "ControlNetLoader"
+      },
+      "widgets_values": [
+        "FLUX/Shakker-LabsFLUX.1-dev-ControlNet-Union-Pro-2.0.safetensors"
+      ],
+      "color": "#006691",
+      "bgcolor": "rgba(24,24,27,.9)"
+    },
+    {
+      "id": 125,
+      "type": "ControlNetApplySD3",
+      "pos": [
+        3940,
+        2070
+      ],
+      "size": [
+        315,
+        186
+      ],
+      "flags": {},
+      "order": 39,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "正面条件",
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 185
+        },
+        {
+          "label": "负面条件",
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 186
+        },
+        {
+          "label": "ControlNet",
+          "name": "control_net",
+          "type": "CONTROL_NET",
+          "link": 187
+        },
+        {
+          "label": "VAE",
+          "name": "vae",
+          "type": "VAE",
+          "link": 472
+        },
+        {
+          "label": "图像",
+          "name": "image",
+          "type": "IMAGE",
+          "link": 224
+        }
+      ],
+      "outputs": [
+        {
+          "label": "正面条件",
+          "name": "positive",
+          "shape": 3,
+          "type": "CONDITIONING",
+          "slot_index": 0,
+          "links": [
+            467
+          ]
+        },
+        {
+          "label": "负面条件",
+          "name": "negative",
+          "shape": 3,
+          "type": "CONDITIONING",
+          "slot_index": 1,
+          "links": [
+            195
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.24",
+        "Node name for S&R": "ControlNetApplySD3"
+      },
+      "widgets_values": [
+        0.5000000000000001,
+        0,
+        0.7000000000000002
+      ],
+      "color": "#006691",
+      "bgcolor": "rgba(24,24,27,.9)"
+    },
+    {
+      "id": 121,
+      "type": "ControlNetLoader",
+      "pos": [
+        3940,
+        1950
+      ],
+      "size": [
+        310,
+        60
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "label": "ControlNet",
+          "name": "CONTROL_NET",
+          "shape": 3,
+          "type": "CONTROL_NET",
+          "slot_index": 0,
+          "links": [
+            187
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.24",
+        "Node name for S&R": "ControlNetLoader"
+      },
+      "widgets_values": [
+        "FLUX/Shakker-LabsFLUX.1-dev-ControlNet-Union-Pro-2.0.safetensors"
+      ],
+      "color": "#006691",
+      "bgcolor": "rgba(24,24,27,.9)"
+    },
+    {
+      "id": 3,
+      "type": "CheckpointLoaderSimple",
+      "pos": [
+        3900,
+        1170
+      ],
+      "size": [
+        330,
+        98
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "label": "模型",
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            13
+          ]
+        },
+        {
+          "label": "CLIP",
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            16
+          ]
+        },
+        {
+          "label": "VAE",
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            442,
+            443,
+            445,
+            471,
+            472
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.27",
+        "Node name for S&R": "CheckpointLoaderSimple"
+      },
+      "widgets_values": [
+        "FLUX/flux1-dev-fp8.safetensors"
+      ],
+      "color": "#422342",
+      "bgcolor": "rgba(24,24,27,.9)"
+    },
+    {
+      "id": 119,
+      "type": "PreviewImage",
+      "pos": [
+        4030,
+        2300
+      ],
+      "size": [
+        210,
+        246
+      ],
+      "flags": {},
+      "order": 36,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "图像",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 223
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.27",
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [
+        ""
+      ]
+    },
+    {
+      "id": 117,
+      "type": "PreviewImage",
+      "pos": [
+        3680,
+        2310
+      ],
+      "size": [
+        210,
+        246
+      ],
+      "flags": {},
+      "order": 35,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "图像",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 177
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.27",
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [
+        ""
+      ]
+    },
+    {
+      "id": 139,
+      "type": "OpenposePreprocessor",
+      "pos": [
+        3940,
+        1730
+      ],
+      "size": [
+        315,
+        174
+      ],
+      "flags": {},
+      "order": 29,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "图像",
+          "name": "image",
+          "type": "IMAGE",
+          "link": 487
+        }
+      ],
+      "outputs": [
+        {
+          "label": "图像",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            223,
+            224
+          ]
+        },
+        {
+          "label": "姿态关键点",
+          "name": "POSE_KEYPOINT",
+          "type": "POSE_KEYPOINT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui_controlnet_aux",
+        "ver": "83463c2e4b04e729268e57f638b4212e0da4badc",
+        "Node name for S&R": "OpenposePreprocessor"
+      },
+      "widgets_values": [
+        "enable",
+        "enable",
+        "enable",
+        512,
+        "disable"
+      ]
+    },
+    {
+      "id": 189,
+      "type": "ReduxAdvanced",
+      "pos": [
+        5150,
+        1730
+      ],
+      "size": [
+        320,
+        240
+      ],
+      "flags": {},
+      "order": 40,
+      "mode": 4,
+      "inputs": [
+        {
+          "label": "conditioning",
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 467
+        },
+        {
+          "label": "style_model",
+          "name": "style_model",
+          "type": "STYLE_MODEL",
+          "link": 463
+        },
+        {
+          "label": "clip_vision",
+          "name": "clip_vision",
+          "type": "CLIP_VISION",
+          "link": 464
+        },
+        {
+          "label": "image",
+          "name": "image",
+          "type": "IMAGE",
+          "link": 545
+        },
+        {
+          "label": "mask",
+          "name": "mask",
+          "shape": 7,
+          "type": "MASK",
+          "link": 544
+        }
+      ],
+      "outputs": [
+        {
+          "label": "CONDITIONING",
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "slot_index": 0,
+          "links": [
+            468
+          ]
+        },
+        {
+          "label": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "slot_index": 1,
+          "links": [
+            462
+          ]
+        },
+        {
+          "label": "MASK",
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "advancedRefluxControl",
+        "ver": "0a87efa252ae5e8f4af1225b0e19c867f908376a",
+        "Node name for S&R": "ReduxAdvanced"
+      },
+      "widgets_values": [
+        2,
+        "area",
+        "autocrop with mask",
+        1,
+        0.1
+      ],
+      "color": "#c09430",
+      "bgcolor": "rgba(24,24,27,.9)"
+    },
+    {
+      "id": 122,
+      "type": "AIO_Preprocessor",
+      "pos": [
+        3220,
+        1760
+      ],
+      "size": [
+        315,
+        82
+      ],
+      "flags": {},
+      "order": 27,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "图像",
+          "name": "image",
+          "type": "IMAGE",
+          "link": 485
+        }
+      ],
+      "outputs": [
+        {
+          "label": "图像",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            176,
+            363
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui_controlnet_aux",
+        "ver": "83463c2e4b04e729268e57f638b4212e0da4badc",
+        "Node name for S&R": "AIO_Preprocessor"
+      },
+      "widgets_values": [
+        "DepthAnythingV2Preprocessor",
+        512
+      ]
+    },
+    {
+      "id": 202,
+      "type": "ImageResize+",
+      "pos": [
+        2660,
+        1630
+      ],
+      "size": [
+        315,
+        218
+      ],
+      "flags": {},
+      "order": 22,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "图像",
+          "name": "image",
+          "type": "IMAGE",
+          "link": 539
+        }
+      ],
+      "outputs": [
+        {
+          "label": "图像",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "slot_index": 0,
+          "links": [
+            484,
+            485,
+            486,
+            487
+          ]
+        },
+        {
+          "label": "宽度",
+          "name": "width",
+          "type": "INT",
+          "slot_index": 1,
+          "links": []
+        },
+        {
+          "label": "高度",
+          "name": "height",
+          "type": "INT",
+          "slot_index": 2,
+          "links": []
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui_essentials",
+        "ver": "33ff89fd354d8ec3ab6affb605a79a931b445d99",
+        "Node name for S&R": "ImageResize+"
+      },
+      "widgets_values": [
+        720,
+        0,
+        "nearest",
+        "keep proportion",
+        "always",
+        0
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 14,
+      "type": "Text Multiline",
+      "pos": [
+        3200,
+        850
+      ],
+      "size": [
+        310,
+        100
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "label": "字符串",
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            137,
+            457
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "pr-was-node-suite-comfyui-47064894",
+        "ver": "393aecf91fe193f292f02421ac8262cc88ed2875",
+        "Node name for S&R": "Text Multiline"
+      },
+      "widgets_values": [
+        "anime,",
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "id": 188,
+      "type": "CLIPVisionLoader",
+      "pos": [
+        4970,
+        1890
+      ],
+      "size": [
+        320,
+        58
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 5,
+      "mode": 4,
+      "inputs": [],
+      "outputs": [
+        {
+          "label": "CLIP视觉",
+          "name": "CLIP_VISION",
+          "type": "CLIP_VISION",
+          "slot_index": 0,
+          "links": [
+            464
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.27",
+        "Node name for S&R": "CLIPVisionLoader"
+      },
+      "widgets_values": [
+        "sigclip_vision_patch14_384.safetensors"
+      ],
+      "color": "#c09430",
+      "bgcolor": "rgba(24,24,27,.9)"
+    },
+    {
+      "id": 191,
+      "type": "StyleModelLoader",
+      "pos": [
+        5020,
+        2030
+      ],
+      "size": [
+        290,
+        70
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 4,
+      "inputs": [],
+      "outputs": [
+        {
+          "label": "风格模型",
+          "name": "STYLE_MODEL",
+          "type": "STYLE_MODEL",
+          "slot_index": 0,
+          "links": [
+            463
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.27",
+        "Node name for S&R": "StyleModelLoader"
+      },
+      "widgets_values": [
+        "flux1-redux-dev.safetensors"
+      ],
+      "color": "#c09430",
+      "bgcolor": "rgba(24,24,27,.9)"
+    },
+    {
+      "id": 74,
+      "type": "LoadImage",
+      "pos": [
+        1370,
+        1440
+      ],
+      "size": [
+        310,
+        530
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "label": "图像",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            540
+          ]
+        },
+        {
+          "label": "遮罩",
+          "name": "MASK",
+          "type": "MASK",
+          "links": []
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.27",
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "C38 白衣男子 虚弱的靠在一个中式亭子的柱子旁 双手交叉放在胸前 似乎在保护自己的东西不被抢走 背景是街道背景.jpg",
+        "image",
+        ""
+      ],
+      "color": "#422342",
+      "bgcolor": "rgba(24,24,27,.9)"
+    },
+    {
+      "id": 228,
+      "type": "LaMaInpaint",
+      "pos": [
+        2030,
+        1620
+      ],
+      "size": [
+        480,
+        160
+      ],
+      "flags": {},
+      "order": 18,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "image",
+          "name": "image",
+          "type": "IMAGE",
+          "link": 540
+        },
+        {
+          "label": "mask",
+          "name": "mask",
+          "type": "MASK",
+          "link": 541
+        }
+      ],
+      "outputs": [
+        {
+          "label": "IMAGE",
+          "name": "IMAGE",
+          "shape": 3,
+          "type": "IMAGE",
+          "slot_index": 0,
+          "links": [
+            539
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-art-venture",
+        "ver": "50abaace756b96f5f5dc2c9d72826ef371afd45e",
+        "Node name for S&R": "LaMaInpaint"
+      },
+      "widgets_values": [
+        "Prefer GPU"
+      ],
+      "color": "rgba(0,0,0,.8)"
+    },
+    {
+      "id": 229,
+      "type": "LoadImage",
+      "pos": [
+        1780,
+        1870
+      ],
+      "size": [
+        310,
+        530
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "label": "图像",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": []
+        },
+        {
+          "label": "遮罩",
+          "name": "MASK",
+          "type": "MASK",
+          "links": [
+            541
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.27",
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "clipspace/clipspace-mask-10018973.399999999.png [input]",
+        "image",
+        ""
+      ],
+      "color": "#422342",
+      "bgcolor": "rgba(24,24,27,.9)"
+    },
+    {
+      "id": 147,
+      "type": "VAEEncode",
+      "pos": [
+        3640,
+        1490
+      ],
+      "size": [
+        240,
+        80
+      ],
+      "flags": {},
+      "order": 26,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "图像",
+          "name": "pixels",
+          "type": "IMAGE",
+          "link": 484
+        },
+        {
+          "label": "VAE",
+          "name": "vae",
+          "type": "VAE",
+          "link": 445
+        }
+      ],
+      "outputs": [
+        {
+          "label": "Latent",
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            543
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.27",
+        "Node name for S&R": "VAEEncode"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 124,
+      "type": "ControlNetApplySD3",
+      "pos": [
+        3220,
+        2080
+      ],
+      "size": [
+        315,
+        186
+      ],
+      "flags": {},
+      "order": 37,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "正面条件",
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 192
+        },
+        {
+          "label": "负面条件",
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 194
+        },
+        {
+          "label": "ControlNet",
+          "name": "control_net",
+          "type": "CONTROL_NET",
+          "link": 183
+        },
+        {
+          "label": "VAE",
+          "name": "vae",
+          "type": "VAE",
+          "link": 442
+        },
+        {
+          "label": "图像",
+          "name": "image",
+          "type": "IMAGE",
+          "link": 363
+        }
+      ],
+      "outputs": [
+        {
+          "label": "正面条件",
+          "name": "positive",
+          "shape": 3,
+          "type": "CONDITIONING",
+          "slot_index": 0,
+          "links": [
+            179
+          ]
+        },
+        {
+          "label": "负面条件",
+          "name": "negative",
+          "shape": 3,
+          "type": "CONDITIONING",
+          "slot_index": 1,
+          "links": [
+            180
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.24",
+        "Node name for S&R": "ControlNetApplySD3"
+      },
+      "widgets_values": [
+        0.6000000000000001,
+        0,
+        0.6000000000000001
+      ],
+      "color": "#006691",
+      "bgcolor": "rgba(24,24,27,.9)"
+    },
+    {
+      "id": 227,
+      "type": "Text Multiline",
+      "pos": [
+        3200,
+        1310
+      ],
+      "size": [
+        350,
+        290
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "label": "字符串",
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            538
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "pr-was-node-suite-comfyui-47064894",
+        "ver": "393aecf91fe193f292f02421ac8262cc88ed2875",
+        "Node name for S&R": "Text Multiline"
+      },
+      "widgets_values": [
+        "An ancient Chinese man in white, with a bun, handsome, 20 years old",
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "id": 181,
+      "type": "Text Multiline",
+      "pos": [
+        3200,
+        1010
+      ],
+      "size": [
+        360,
+        210
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "label": "字符串",
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            455
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "pr-was-node-suite-comfyui-47064894",
+        "ver": "393aecf91fe193f292f02421ac8262cc88ed2875",
+        "Node name for S&R": "Text Multiline"
+      },
+      "widgets_values": [
+        "This is an illustration from an anime,a image in style of WJTZ_style,a man char01,white hanfu,long black hair,chinese style",
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "id": 78,
+      "type": "KSampler",
+      "pos": [
+        4420,
+        1180
+      ],
+      "size": [
+        320,
+        270
+      ],
+      "flags": {},
+      "order": 41,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "模型",
+          "name": "model",
+          "type": "MODEL",
+          "link": 441
+        },
+        {
+          "label": "正面条件",
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 468
+        },
+        {
+          "label": "负面条件",
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 195
+        },
+        {
+          "label": "Latent",
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 543
+        }
+      ],
+      "outputs": [
+        {
+          "label": "Latent",
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            152
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.27",
+        "Node name for S&R": "KSampler"
+      },
+      "widgets_values": [
+        620048673023740,
+        "randomize",
+        8,
+        1,
+        "euler",
+        "simple",
+        0.8000000000000002
+      ]
+    },
+    {
+      "id": 231,
+      "type": "LoadImage",
+      "pos": [
+        4350,
+        2400
+      ],
+      "size": [
+        610,
+        620
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 4,
+      "inputs": [],
+      "outputs": [
+        {
+          "label": "图像",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "slot_index": 0,
+          "links": []
+        },
+        {
+          "label": "遮罩",
+          "name": "MASK",
+          "type": "MASK",
+          "slot_index": 1,
+          "links": [
+            544
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.27",
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "全图遮罩.png",
+        "image",
+        ""
+      ],
+      "color": "#c09430",
+      "bgcolor": "rgba(24,24,27,.9)"
+    },
+    {
+      "id": 232,
+      "type": "ImageScale",
+      "pos": [
+        5010,
+        2180
+      ],
+      "size": [
+        275.4449768066406,
+        130
+      ],
+      "flags": {},
+      "order": 20,
+      "mode": 4,
+      "inputs": [
+        {
+          "label": "图像",
+          "name": "image",
+          "type": "IMAGE",
+          "link": 546
+        }
+      ],
+      "outputs": [
+        {
+          "label": "图像",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "slot_index": 0,
+          "links": [
+            545
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.27",
+        "Node name for S&R": "ImageScale"
+      },
+      "widgets_values": [
+        "lanczos",
+        720,
+        1280,
+        "center"
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 177,
+      "type": "PreviewImage",
+      "pos": [
+        4840,
+        1090
+      ],
+      "size": [
+        490,
+        520
+      ],
+      "flags": {},
+      "order": 46,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "图像",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 397
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.27",
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [
+        ""
+      ]
+    },
+    {
+      "id": 190,
+      "type": "LoadImage",
+      "pos": [
+        4330,
+        1730
+      ],
+      "size": [
+        610,
+        620
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 4,
+      "inputs": [],
+      "outputs": [
+        {
+          "label": "图像",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "slot_index": 0,
+          "links": [
+            546
+          ]
+        },
+        {
+          "label": "遮罩",
+          "name": "MASK",
+          "type": "MASK",
+          "slot_index": 1,
+          "links": []
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.27",
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "clipspace/clipspace-mask-709201.6999999881.png [input]",
+        "image",
+        ""
+      ],
+      "color": "#c09430",
+      "bgcolor": "rgba(24,24,27,.9)"
+    },
+    {
+      "id": 236,
+      "type": "MaskPreview+",
+      "pos": [
+        5830,
+        1330
+      ],
+      "size": [
+        240,
+        246
+      ],
+      "flags": {},
+      "order": 50,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "遮罩",
+          "name": "mask",
+          "type": "MASK",
+          "link": 552
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfyui_essentials",
+        "ver": "33ff89fd354d8ec3ab6affb605a79a931b445d99",
+        "Node name for S&R": "MaskPreview+"
+      },
+      "widgets_values": [
+        ""
+      ],
+      "color": "#af3535"
+    },
+    {
+      "id": 253,
+      "type": "AIO_Preprocessor",
+      "pos": [
+        6730,
+        1740
+      ],
+      "size": [
+        315,
+        82
+      ],
+      "flags": {},
+      "order": 53,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "图像",
+          "name": "image",
+          "type": "IMAGE",
+          "link": 673
+        }
+      ],
+      "outputs": [
+        {
+          "label": "图像",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            575,
+            579
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui_controlnet_aux",
+        "ver": "83463c2e4b04e729268e57f638b4212e0da4badc",
+        "Node name for S&R": "AIO_Preprocessor"
+      },
+      "widgets_values": [
+        "DepthAnythingV2Preprocessor",
+        512
+      ]
+    },
+    {
+      "id": 255,
+      "type": "PreviewImage",
+      "pos": [
+        6830,
+        2230
+      ],
+      "size": [
+        210,
+        246
+      ],
+      "flags": {},
+      "order": 57,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "图像",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 575
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.27",
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [
+        ""
+      ]
+    },
+    {
+      "id": 182,
+      "type": "DisplayText",
+      "pos": [
+        4070,
+        840
+      ],
+      "size": [
+        315,
+        112
+      ],
+      "flags": {},
+      "order": 24,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "text",
+          "name": "text",
+          "type": "STRING",
+          "widget": {
+            "name": "text"
+          },
+          "link": 459
+        }
+      ],
+      "outputs": [
+        {
+          "label": "STRING",
+          "name": "STRING",
+          "shape": 6,
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "minicpm-v-2_6-int4",
+        "ver": "ed210d86d48a58712356e8ad0fac255eead94206",
+        "Node name for S&R": "DisplayText"
+      },
+      "widgets_values": [
+        "",
+        "anime,,This is an illustration from an anime,a image in style of WJTZ_style,a man char01,white hanfu,long black hair,chinese style,An ancient Chinese man in white, with a bun, handsome, 20 years old"
+      ]
+    },
+    {
+      "id": 185,
+      "type": "ttN concat",
+      "pos": [
+        3640,
+        870
+      ],
+      "size": [
+        400,
+        220
+      ],
+      "flags": {},
+      "order": 19,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "文本_1",
+          "name": "text1",
+          "type": "STRING",
+          "widget": {
+            "name": "text1"
+          },
+          "link": 457
+        },
+        {
+          "label": "文本_2",
+          "name": "text2",
+          "type": "STRING",
+          "widget": {
+            "name": "text2"
+          },
+          "link": 455
+        },
+        {
+          "label": "文本_3",
+          "name": "text3",
+          "type": "STRING",
+          "widget": {
+            "name": "text3"
+          },
+          "link": 538
+        }
+      ],
+      "outputs": [
+        {
+          "label": "联结字符串",
+          "name": "concat",
+          "type": "STRING",
+          "links": [
+            458,
+            459,
+            628
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui_tinyterranodes",
+        "ver": "c669e6cff81ba44cce91c9eee3236c1a64725394",
+        "Node name for S&R": "ttN concat",
+        "ttNnodeVersion": "1.0.0"
+      },
+      "widgets_values": [
+        "",
+        "",
+        "",
+        ",",
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ],
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "id": 246,
+      "type": "AIO_Preprocessor",
+      "pos": [
+        7100,
+        1740
+      ],
+      "size": [
+        320,
+        90
+      ],
+      "flags": {},
+      "order": 51,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "图像",
+          "name": "image",
+          "type": "IMAGE",
+          "link": 671
+        }
+      ],
+      "outputs": [
+        {
+          "label": "图像",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            556,
+            563
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui_controlnet_aux",
+        "ver": "83463c2e4b04e729268e57f638b4212e0da4badc",
+        "Node name for S&R": "AIO_Preprocessor"
+      },
+      "widgets_values": [
+        "CannyEdgePreprocessor",
+        512
+      ]
+    },
+    {
+      "id": 245,
+      "type": "ControlNetApplySD3",
+      "pos": [
+        7100,
+        2000
+      ],
+      "size": [
+        320,
+        186
+      ],
+      "flags": {},
+      "order": 60,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "正面条件",
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 560
+        },
+        {
+          "label": "负面条件",
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 561
+        },
+        {
+          "label": "ControlNet",
+          "name": "control_net",
+          "type": "CONTROL_NET",
+          "link": 562
+        },
+        {
+          "label": "VAE",
+          "name": "vae",
+          "type": "VAE",
+          "link": 701
+        },
+        {
+          "label": "图像",
+          "name": "image",
+          "type": "IMAGE",
+          "link": 563
+        }
+      ],
+      "outputs": [
+        {
+          "label": "正面条件",
+          "name": "positive",
+          "shape": 3,
+          "type": "CONDITIONING",
+          "slot_index": 0,
+          "links": [
+            566
+          ]
+        },
+        {
+          "label": "负面条件",
+          "name": "negative",
+          "shape": 3,
+          "type": "CONDITIONING",
+          "slot_index": 1,
+          "links": [
+            567
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.24",
+        "Node name for S&R": "ControlNetApplySD3"
+      },
+      "widgets_values": [
+        0.10000000000000002,
+        0,
+        0.6000000000000001
+      ],
+      "color": "#006691",
+      "bgcolor": "rgba(24,24,27,.9)"
+    },
+    {
+      "id": 254,
+      "type": "ControlNetLoader",
+      "pos": [
+        6740,
+        1870
+      ],
+      "size": [
+        320,
+        90
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "label": "ControlNet",
+          "name": "CONTROL_NET",
+          "shape": 3,
+          "type": "CONTROL_NET",
+          "slot_index": 0,
+          "links": [
+            578
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.24",
+        "Node name for S&R": "ControlNetLoader"
+      },
+      "widgets_values": [
+        "FLUX/Shakker-LabsFLUX.1-dev-ControlNet-Union-Pro-2.0.safetensors"
+      ],
+      "color": "#006691",
+      "bgcolor": "rgba(24,24,27,.9)"
+    },
+    {
+      "id": 244,
+      "type": "ControlNetLoader",
+      "pos": [
+        7100,
+        1880
+      ],
+      "size": [
+        320,
+        60
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "label": "ControlNet",
+          "name": "CONTROL_NET",
+          "shape": 3,
+          "type": "CONTROL_NET",
+          "slot_index": 0,
+          "links": [
+            562
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.24",
+        "Node name for S&R": "ControlNetLoader"
+      },
+      "widgets_values": [
+        "FLUX/Shakker-LabsFLUX.1-dev-ControlNet-Union-Pro-2.0.safetensors"
+      ],
+      "color": "#006691",
+      "bgcolor": "rgba(24,24,27,.9)"
+    },
+    {
+      "id": 248,
+      "type": "OpenposePreprocessor",
+      "pos": [
+        7470,
+        1650
+      ],
+      "size": [
+        315,
+        174
+      ],
+      "flags": {},
+      "order": 52,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "图像",
+          "name": "image",
+          "type": "IMAGE",
+          "link": 672
+        }
+      ],
+      "outputs": [
+        {
+          "label": "图像",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            569,
+            570
+          ]
+        },
+        {
+          "label": "姿态关键点",
+          "name": "POSE_KEYPOINT",
+          "type": "POSE_KEYPOINT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui_controlnet_aux",
+        "ver": "83463c2e4b04e729268e57f638b4212e0da4badc",
+        "Node name for S&R": "OpenposePreprocessor"
+      },
+      "widgets_values": [
+        "enable",
+        "enable",
+        "disable",
+        512,
+        "disable"
+      ]
+    },
+    {
+      "id": 251,
+      "type": "ControlNetLoader",
+      "pos": [
+        7460,
+        1870
+      ],
+      "size": [
+        315,
+        58
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "label": "ControlNet",
+          "name": "CONTROL_NET",
+          "shape": 3,
+          "type": "CONTROL_NET",
+          "slot_index": 0,
+          "links": [
+            568
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.24",
+        "Node name for S&R": "ControlNetLoader"
+      },
+      "widgets_values": [
+        "FLUX/Shakker-LabsFLUX.1-dev-ControlNet-Union-Pro-2.0.safetensors"
+      ],
+      "color": "#006691",
+      "bgcolor": "rgba(24,24,27,.9)"
+    },
+    {
+      "id": 249,
+      "type": "ControlNetApplySD3",
+      "pos": [
+        7460,
+        1990
+      ],
+      "size": [
+        315,
+        186
+      ],
+      "flags": {},
+      "order": 61,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "正面条件",
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 566
+        },
+        {
+          "label": "负面条件",
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 567
+        },
+        {
+          "label": "ControlNet",
+          "name": "control_net",
+          "type": "CONTROL_NET",
+          "link": 568
+        },
+        {
+          "label": "VAE",
+          "name": "vae",
+          "type": "VAE",
+          "link": 702
+        },
+        {
+          "label": "图像",
+          "name": "image",
+          "type": "IMAGE",
+          "link": 569
+        }
+      ],
+      "outputs": [
+        {
+          "label": "正面条件",
+          "name": "positive",
+          "shape": 3,
+          "type": "CONDITIONING",
+          "slot_index": 0,
+          "links": [
+            571
+          ]
+        },
+        {
+          "label": "负面条件",
+          "name": "negative",
+          "shape": 3,
+          "type": "CONDITIONING",
+          "slot_index": 1,
+          "links": [
+            572
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.24",
+        "Node name for S&R": "ControlNetApplySD3"
+      },
+      "widgets_values": [
+        0.5000000000000001,
+        0,
+        0.7000000000000002
+      ],
+      "color": "#006691",
+      "bgcolor": "rgba(24,24,27,.9)"
+    },
+    {
+      "id": 250,
+      "type": "PreviewImage",
+      "pos": [
+        7550,
+        2220
+      ],
+      "size": [
+        210,
+        246
+      ],
+      "flags": {},
+      "order": 56,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "图像",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 570
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.27",
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [
+        ""
+      ]
+    },
+    {
+      "id": 240,
+      "type": "PreviewImage",
+      "pos": [
+        7200,
+        2230
+      ],
+      "size": [
+        210,
+        246
+      ],
+      "flags": {},
+      "order": 55,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "图像",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 556
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.27",
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [
+        ""
+      ]
+    },
+    {
+      "id": 256,
+      "type": "ControlNetApplySD3",
+      "pos": [
+        6740,
+        2000
+      ],
+      "size": [
+        315,
+        186
+      ],
+      "flags": {},
+      "order": 58,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "正面条件",
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 576
+        },
+        {
+          "label": "负面条件",
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 577
+        },
+        {
+          "label": "ControlNet",
+          "name": "control_net",
+          "type": "CONTROL_NET",
+          "link": 578
+        },
+        {
+          "label": "VAE",
+          "name": "vae",
+          "type": "VAE",
+          "link": 700
+        },
+        {
+          "label": "图像",
+          "name": "image",
+          "type": "IMAGE",
+          "link": 579
+        }
+      ],
+      "outputs": [
+        {
+          "label": "正面条件",
+          "name": "positive",
+          "shape": 3,
+          "type": "CONDITIONING",
+          "slot_index": 0,
+          "links": [
+            560
+          ]
+        },
+        {
+          "label": "负面条件",
+          "name": "negative",
+          "shape": 3,
+          "type": "CONDITIONING",
+          "slot_index": 1,
+          "links": [
+            561
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.24",
+        "Node name for S&R": "ControlNetApplySD3"
+      },
+      "widgets_values": [
+        0.6000000000000001,
+        0,
+        0.6000000000000001
+      ],
+      "color": "#006691",
+      "bgcolor": "rgba(24,24,27,.9)"
+    },
+    {
+      "id": 235,
+      "type": "PreviewImage",
+      "pos": [
+        5850,
+        770
+      ],
+      "size": [
+        450,
+        480
+      ],
+      "flags": {
+        "collapsed": false
+      },
+      "order": 49,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "图像",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 551
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.27",
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": [
+        ""
+      ],
+      "color": "#af3535"
+    },
+    {
+      "id": 102,
+      "type": "VAEDecode",
+      "pos": [
+        4790,
+        870
+      ],
+      "size": [
+        210,
+        46
+      ],
+      "flags": {},
+      "order": 43,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "Latent",
+          "name": "samples",
+          "type": "LATENT",
+          "link": 152
+        },
+        {
+          "label": "VAE",
+          "name": "vae",
+          "type": "VAE",
+          "link": 443
+        }
+      ],
+      "outputs": [
+        {
+          "label": "图像",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            265,
+            266,
+            397,
+            553,
+            602
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.27",
+        "Node name for S&R": "VAEDecode"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 237,
+      "type": "LayerMask: SegmentAnythingUltra V2",
+      "pos": [
+        5400,
+        1060
+      ],
+      "size": [
+        315,
+        366
+      ],
+      "flags": {},
+      "order": 47,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "图像",
+          "name": "image",
+          "type": "IMAGE",
+          "link": 553
+        }
+      ],
+      "outputs": [
+        {
+          "label": "图像",
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            551
+          ]
+        },
+        {
+          "label": "遮罩",
+          "name": "mask",
+          "type": "MASK",
+          "links": [
+            552,
+            604
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui_layerstyle_advance",
+        "ver": "fe35b54bd2781206994176f8913db4afabffcdb1",
+        "Node name for S&R": "LayerMask: SegmentAnythingUltra V2"
+      },
+      "widgets_values": [
+        "sam_vit_h (2.56GB)",
+        "GroundingDINO_SwinT_OGC (694MB)",
+        0.3,
+        "VITMatte",
+        6,
+        6,
+        0.15,
+        0.99,
+        true,
+        "subject",
+        "cuda",
+        2,
+        false
+      ],
+      "color": "rgba(27, 80, 119, 0.7)"
+    },
+    {
+      "id": 271,
+      "type": "SaveImage",
+      "pos": [
+        6330,
+        760
+      ],
+      "size": [
+        310,
+        530
+      ],
+      "flags": {},
+      "order": 66,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "图像",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 600
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.27",
+        "Node name for S&R": "SaveImage"
+      },
+      "widgets_values": [
+        "ComfyUI",
+        ""
+      ],
+      "color": "#422342",
+      "bgcolor": "rgba(24,24,27,.9)"
+    },
+    {
+      "id": 270,
+      "type": "SetLatentNoiseMask",
+      "pos": [
+        6750,
+        820
+      ],
+      "size": [
+        210,
+        46
+      ],
+      "flags": {},
+      "order": 59,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "Latent",
+          "name": "samples",
+          "type": "LATENT",
+          "link": 598
+        },
+        {
+          "label": "遮罩",
+          "name": "mask",
+          "type": "MASK",
+          "link": 604
+        }
+      ],
+      "outputs": [
+        {
+          "label": "Latent",
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            573
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.27",
+        "Node name for S&R": "SetLatentNoiseMask"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 260,
+      "type": "VAEEncode",
+      "pos": [
+        6750,
+        930
+      ],
+      "size": [
+        210,
+        46
+      ],
+      "flags": {},
+      "order": 54,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "图像",
+          "name": "pixels",
+          "type": "IMAGE",
+          "link": 674
+        },
+        {
+          "label": "VAE",
+          "name": "vae",
+          "type": "VAE",
+          "link": 703
+        }
+      ],
+      "outputs": [
+        {
+          "label": "Latent",
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            598
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.27",
+        "Node name for S&R": "VAEEncode"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 239,
+      "type": "CLIPTextEncode",
+      "pos": [
+        6970,
+        820
+      ],
+      "size": [
+        230,
+        80
+      ],
+      "flags": {},
+      "order": 25,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "CLIP",
+          "name": "clip",
+          "type": "CLIP",
+          "link": 697
+        },
+        {
+          "label": "文本",
+          "name": "text",
+          "type": "STRING",
+          "widget": {
+            "name": "text"
+          },
+          "link": 628
+        }
+      ],
+      "outputs": [
+        {
+          "label": "条件",
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            554,
+            557
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.27",
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "widgets_values": [
+        "",
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "id": 238,
+      "type": "FluxGuidance",
+      "pos": [
+        6970,
+        950
+      ],
+      "size": [
+        230,
+        60
+      ],
+      "flags": {},
+      "order": 32,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "条件",
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 554
+        }
+      ],
+      "outputs": [
+        {
+          "label": "条件",
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            576
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.27",
+        "Node name for S&R": "FluxGuidance"
+      },
+      "widgets_values": [
+        3.5
+      ]
+    },
+    {
+      "id": 241,
+      "type": "ConditioningZeroOut",
+      "pos": [
+        6970,
+        1050
+      ],
+      "size": [
+        230,
+        60
+      ],
+      "flags": {},
+      "order": 33,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "条件",
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 557
+        }
+      ],
+      "outputs": [
+        {
+          "label": "条件",
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            577
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.27",
+        "Node name for S&R": "ConditioningZeroOut"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 252,
+      "type": "KSampler",
+      "pos": [
+        7220,
+        970
+      ],
+      "size": [
+        315,
+        262
+      ],
+      "flags": {},
+      "order": 62,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "模型",
+          "name": "model",
+          "type": "MODEL",
+          "link": 696
+        },
+        {
+          "label": "正面条件",
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 571
+        },
+        {
+          "label": "负面条件",
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 572
+        },
+        {
+          "label": "Latent",
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 573
+        }
+      ],
+      "outputs": [
+        {
+          "label": "Latent",
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            583
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.27",
+        "Node name for S&R": "KSampler"
+      },
+      "widgets_values": [
+        496712358779783,
+        "randomize",
+        8,
+        1,
+        "euler",
+        "simple",
+        1
+      ]
+    },
+    {
+      "id": 259,
+      "type": "VAEDecode",
+      "pos": [
+        7570,
+        1120
+      ],
+      "size": [
+        210,
+        46
+      ],
+      "flags": {},
+      "order": 63,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "Latent",
+          "name": "samples",
+          "type": "LATENT",
+          "link": 583
+        },
+        {
+          "label": "VAE",
+          "name": "vae",
+          "type": "VAE",
+          "link": 698
+        }
+      ],
+      "outputs": [
+        {
+          "label": "图像",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            558,
+            559,
+            600
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.27",
+        "Node name for S&R": "VAEDecode"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 242,
+      "type": "easy cleanGpuUsed",
+      "pos": [
+        7570,
+        1230
+      ],
+      "size": [
+        210,
+        26
+      ],
+      "flags": {},
+      "order": 64,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "输入任何",
+          "name": "anything",
+          "type": "*",
+          "link": 558
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "*",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-easy-use",
+        "ver": "389387308538e2790b89457ccb555f8329c97e86",
+        "Node name for S&R": "easy cleanGpuUsed"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 243,
+      "type": "easy clearCacheAll",
+      "pos": [
+        7570,
+        1300
+      ],
+      "size": [
+        210,
+        26
+      ],
+      "flags": {},
+      "order": 65,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "输入任何",
+          "name": "anything",
+          "type": "*",
+          "link": 559
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "*",
+          "links": null
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-easy-use",
+        "ver": "389387308538e2790b89457ccb555f8329c97e86",
+        "Node name for S&R": "easy clearCacheAll"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 12,
+      "type": "Lora Loader Stack (rgthree)",
+      "pos": [
+        4420,
+        870
+      ],
+      "size": [
+        340,
+        250
+      ],
+      "flags": {},
+      "order": 17,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "模型",
+          "name": "model",
+          "type": "MODEL",
+          "link": 13
+        },
+        {
+          "label": "CLIP",
+          "name": "clip",
+          "type": "CLIP",
+          "link": 16
+        }
+      ],
+      "outputs": [
+        {
+          "label": "模型",
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            441
+          ]
+        },
+        {
+          "label": "CLIP",
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            444
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "rgthree-comfy",
+        "ver": "5d771b8b56a343c24a26e8cea1f0c87c3d58102f",
+        "Node name for S&R": "Lora Loader Stack (rgthree)"
+      },
+      "widgets_values": [
+        "WJTZ/WJTZ_V3.safetensors",
+        0.8000000000000002,
+        "WJTZ/char01陈天极.safetensors",
+        0.30000000000000004,
+        "FLUX/Flux Dev 4-step Lora.safetensors",
+        1.0000000000000002,
+        "None",
+        0
+      ],
+      "color": "#422342",
+      "bgcolor": "rgba(24,24,27,.9)"
+    },
+    {
+      "id": 266,
+      "type": "Lora Loader Stack (rgthree)",
+      "pos": [
+        7560,
+        820
+      ],
+      "size": [
+        330,
+        250
+      ],
+      "flags": {},
+      "order": 21,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "模型",
+          "name": "model",
+          "type": "MODEL",
+          "link": 596
+        },
+        {
+          "label": "CLIP",
+          "name": "clip",
+          "type": "CLIP",
+          "link": 597
+        }
+      ],
+      "outputs": [
+        {
+          "label": "模型",
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            696
+          ]
+        },
+        {
+          "label": "CLIP",
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            697
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "rgthree-comfy",
+        "ver": "5d771b8b56a343c24a26e8cea1f0c87c3d58102f",
+        "Node name for S&R": "Lora Loader Stack (rgthree)"
+      },
+      "widgets_values": [
+        "WJTZ/WJTZ_V3.safetensors",
+        0.4000000000000001,
+        "WJTZ/char01陈天极.safetensors",
+        0.8000000000000002,
+        "FLUX/Flux Dev 4-step Lora.safetensors",
+        1.0000000000000002,
+        "None",
+        0
+      ],
+      "color": "#422342",
+      "bgcolor": "rgba(24,24,27,.9)"
+    },
+    {
+      "id": 267,
+      "type": "CheckpointLoaderSimple",
+      "pos": [
+        7220,
+        820
+      ],
+      "size": [
+        315,
+        98
+      ],
+      "flags": {},
+      "order": 16,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "label": "模型",
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            596
+          ]
+        },
+        {
+          "label": "CLIP",
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            597
+          ]
+        },
+        {
+          "label": "VAE",
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            698,
+            700,
+            701,
+            702,
+            703
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.27",
+        "Node name for S&R": "CheckpointLoaderSimple"
+      },
+      "widgets_values": [
+        "FLUX/flux1-dev-fp8.safetensors"
+      ],
+      "color": "#422342",
+      "bgcolor": "rgba(24,24,27,.9)"
+    },
+    {
+      "id": 275,
+      "type": "Reroute",
+      "pos": [
+        6720,
+        1120
+      ],
+      "size": [
+        75,
+        26
+      ],
+      "flags": {},
+      "order": 48,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "",
+          "type": "*",
+          "link": 602
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "IMAGE",
+          "links": [
+            671,
+            672,
+            673,
+            674
+          ]
+        }
+      ],
+      "properties": {
+        "showOutputText": false,
+        "horizontal": false
+      }
+    }
+  ],
+  "links": [
+    [
+      13,
+      3,
+      0,
+      12,
+      0,
+      "MODEL"
+    ],
+    [
+      16,
+      3,
+      1,
+      12,
+      1,
+      "CLIP"
+    ],
+    [
+      24,
+      12,
+      0,
+      7,
+      0,
+      "MODEL"
+    ],
+    [
+      25,
+      3,
+      2,
+      10,
+      1,
+      "VAE"
+    ],
+    [
+      26,
+      12,
+      1,
+      15,
+      0,
+      "CLIP"
+    ],
+    [
+      145,
+      99,
+      0,
+      100,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      146,
+      99,
+      0,
+      101,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      152,
+      78,
+      0,
+      102,
+      0,
+      "LATENT"
+    ],
+    [
+      176,
+      122,
+      0,
+      115,
+      0,
+      "IMAGE"
+    ],
+    [
+      177,
+      118,
+      0,
+      117,
+      0,
+      "IMAGE"
+    ],
+    [
+      179,
+      124,
+      0,
+      123,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      180,
+      124,
+      1,
+      123,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      181,
+      116,
+      0,
+      123,
+      2,
+      "CONTROL_NET"
+    ],
+    [
+      182,
+      118,
+      0,
+      123,
+      4,
+      "IMAGE"
+    ],
+    [
+      183,
+      114,
+      0,
+      124,
+      2,
+      "CONTROL_NET"
+    ],
+    [
+      185,
+      123,
+      0,
+      125,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      186,
+      123,
+      1,
+      125,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      187,
+      121,
+      0,
+      125,
+      2,
+      "CONTROL_NET"
+    ],
+    [
+      192,
+      100,
+      0,
+      124,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      194,
+      101,
+      0,
+      124,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      195,
+      125,
+      1,
+      78,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      223,
+      139,
+      0,
+      119,
+      0,
+      "IMAGE"
+    ],
+    [
+      224,
+      139,
+      0,
+      125,
+      4,
+      "IMAGE"
+    ],
+    [
+      265,
+      102,
+      0,
+      135,
+      0,
+      "*"
+    ],
+    [
+      266,
+      102,
+      0,
+      137,
+      0,
+      "*"
+    ],
+    [
+      271,
+      12,
+      1,
+      99,
+      0,
+      "CLIP"
+    ],
+    [
+      272,
+      3,
+      2,
+      102,
+      1,
+      "VAE"
+    ],
+    [
+      273,
+      3,
+      2,
+      124,
+      3,
+      "VAE"
+    ],
+    [
+      274,
+      12,
+      0,
+      78,
+      0,
+      "MODEL"
+    ],
+    [
+      275,
+      3,
+      2,
+      147,
+      1,
+      "VAE"
+    ],
+    [
+      363,
+      122,
+      0,
+      124,
+      4,
+      "IMAGE"
+    ],
+    [
+      367,
+      12,
+      1,
+      99,
+      0,
+      "CLIP"
+    ],
+    [
+      368,
+      3,
+      2,
+      102,
+      1,
+      "VAE"
+    ],
+    [
+      369,
+      3,
+      2,
+      147,
+      1,
+      "VAE"
+    ],
+    [
+      370,
+      12,
+      0,
+      78,
+      0,
+      "MODEL"
+    ],
+    [
+      371,
+      3,
+      2,
+      124,
+      3,
+      "VAE"
+    ],
+    [
+      372,
+      12,
+      1,
+      99,
+      0,
+      "CLIP"
+    ],
+    [
+      373,
+      3,
+      2,
+      102,
+      1,
+      "VAE"
+    ],
+    [
+      374,
+      3,
+      2,
+      147,
+      1,
+      "VAE"
+    ],
+    [
+      375,
+      12,
+      0,
+      78,
+      0,
+      "MODEL"
+    ],
+    [
+      376,
+      3,
+      2,
+      124,
+      3,
+      "VAE"
+    ],
+    [
+      397,
+      102,
+      0,
+      177,
+      0,
+      "IMAGE"
+    ],
+    [
+      441,
+      12,
+      0,
+      78,
+      0,
+      "MODEL"
+    ],
+    [
+      442,
+      3,
+      2,
+      124,
+      3,
+      "VAE"
+    ],
+    [
+      443,
+      3,
+      2,
+      102,
+      1,
+      "VAE"
+    ],
+    [
+      444,
+      12,
+      1,
+      99,
+      0,
+      "CLIP"
+    ],
+    [
+      445,
+      3,
+      2,
+      147,
+      1,
+      "VAE"
+    ],
+    [
+      455,
+      181,
+      0,
+      185,
+      1,
+      "STRING"
+    ],
+    [
+      457,
+      14,
+      0,
+      185,
+      0,
+      "STRING"
+    ],
+    [
+      458,
+      185,
+      0,
+      99,
+      1,
+      "STRING"
+    ],
+    [
+      459,
+      185,
+      0,
+      182,
+      0,
+      "STRING"
+    ],
+    [
+      462,
+      189,
+      1,
+      187,
+      0,
+      "IMAGE"
+    ],
+    [
+      463,
+      191,
+      0,
+      189,
+      1,
+      "STYLE_MODEL"
+    ],
+    [
+      464,
+      188,
+      0,
+      189,
+      2,
+      "CLIP_VISION"
+    ],
+    [
+      467,
+      125,
+      0,
+      189,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      468,
+      189,
+      0,
+      78,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      471,
+      3,
+      2,
+      123,
+      3,
+      "VAE"
+    ],
+    [
+      472,
+      3,
+      2,
+      125,
+      3,
+      "VAE"
+    ],
+    [
+      484,
+      202,
+      0,
+      147,
+      0,
+      "IMAGE"
+    ],
+    [
+      485,
+      202,
+      0,
+      122,
+      0,
+      "IMAGE"
+    ],
+    [
+      486,
+      202,
+      0,
+      118,
+      0,
+      "IMAGE"
+    ],
+    [
+      487,
+      202,
+      0,
+      139,
+      0,
+      "IMAGE"
+    ],
+    [
+      538,
+      227,
+      0,
+      185,
+      2,
+      "STRING"
+    ],
+    [
+      539,
+      228,
+      0,
+      202,
+      0,
+      "IMAGE"
+    ],
+    [
+      540,
+      74,
+      0,
+      228,
+      0,
+      "IMAGE"
+    ],
+    [
+      541,
+      229,
+      1,
+      228,
+      1,
+      "MASK"
+    ],
+    [
+      543,
+      147,
+      0,
+      78,
+      3,
+      "LATENT"
+    ],
+    [
+      544,
+      231,
+      1,
+      189,
+      4,
+      "MASK"
+    ],
+    [
+      545,
+      232,
+      0,
+      189,
+      3,
+      "IMAGE"
+    ],
+    [
+      546,
+      190,
+      0,
+      232,
+      0,
+      "IMAGE"
+    ],
+    [
+      551,
+      237,
+      0,
+      235,
+      0,
+      "IMAGE"
+    ],
+    [
+      552,
+      237,
+      1,
+      236,
+      0,
+      "MASK"
+    ],
+    [
+      553,
+      102,
+      0,
+      237,
+      0,
+      "IMAGE"
+    ],
+    [
+      554,
+      239,
+      0,
+      238,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      556,
+      246,
+      0,
+      240,
+      0,
+      "IMAGE"
+    ],
+    [
+      557,
+      239,
+      0,
+      241,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      558,
+      259,
+      0,
+      242,
+      0,
+      "*"
+    ],
+    [
+      559,
+      259,
+      0,
+      243,
+      0,
+      "*"
+    ],
+    [
+      560,
+      256,
+      0,
+      245,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      561,
+      256,
+      1,
+      245,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      562,
+      244,
+      0,
+      245,
+      2,
+      "CONTROL_NET"
+    ],
+    [
+      563,
+      246,
+      0,
+      245,
+      4,
+      "IMAGE"
+    ],
+    [
+      566,
+      245,
+      0,
+      249,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      567,
+      245,
+      1,
+      249,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      568,
+      251,
+      0,
+      249,
+      2,
+      "CONTROL_NET"
+    ],
+    [
+      569,
+      248,
+      0,
+      249,
+      4,
+      "IMAGE"
+    ],
+    [
+      570,
+      248,
+      0,
+      250,
+      0,
+      "IMAGE"
+    ],
+    [
+      571,
+      249,
+      0,
+      252,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      572,
+      249,
+      1,
+      252,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      573,
+      270,
+      0,
+      252,
+      3,
+      "LATENT"
+    ],
+    [
+      575,
+      253,
+      0,
+      255,
+      0,
+      "IMAGE"
+    ],
+    [
+      576,
+      238,
+      0,
+      256,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      577,
+      241,
+      0,
+      256,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      578,
+      254,
+      0,
+      256,
+      2,
+      "CONTROL_NET"
+    ],
+    [
+      579,
+      253,
+      0,
+      256,
+      4,
+      "IMAGE"
+    ],
+    [
+      583,
+      252,
+      0,
+      259,
+      0,
+      "LATENT"
+    ],
+    [
+      596,
+      267,
+      0,
+      266,
+      0,
+      "MODEL"
+    ],
+    [
+      597,
+      267,
+      1,
+      266,
+      1,
+      "CLIP"
+    ],
+    [
+      598,
+      260,
+      0,
+      270,
+      0,
+      "LATENT"
+    ],
+    [
+      600,
+      259,
+      0,
+      271,
+      0,
+      "IMAGE"
+    ],
+    [
+      602,
+      102,
+      0,
+      275,
+      0,
+      "*"
+    ],
+    [
+      604,
+      237,
+      1,
+      270,
+      1,
+      "MASK"
+    ],
+    [
+      628,
+      185,
+      0,
+      239,
+      1,
+      "STRING"
+    ],
+    [
+      671,
+      275,
+      0,
+      246,
+      0,
+      "IMAGE"
+    ],
+    [
+      672,
+      275,
+      0,
+      248,
+      0,
+      "IMAGE"
+    ],
+    [
+      673,
+      275,
+      0,
+      253,
+      0,
+      "IMAGE"
+    ],
+    [
+      674,
+      275,
+      0,
+      260,
+      0,
+      "IMAGE"
+    ],
+    [
+      696,
+      266,
+      0,
+      252,
+      0,
+      "MODEL"
+    ],
+    [
+      697,
+      266,
+      1,
+      239,
+      0,
+      "CLIP"
+    ],
+    [
+      698,
+      267,
+      2,
+      259,
+      1,
+      "VAE"
+    ],
+    [
+      700,
+      267,
+      2,
+      256,
+      3,
+      "VAE"
+    ],
+    [
+      701,
+      267,
+      2,
+      245,
+      3,
+      "VAE"
+    ],
+    [
+      702,
+      267,
+      2,
+      249,
+      3,
+      "VAE"
+    ],
+    [
+      703,
+      267,
+      2,
+      260,
+      1,
+      "VAE"
+    ]
+  ],
+  "groups": [
+    {
+      "id": 2,
+      "title": "控制",
+      "bounding": [
+        3200,
+        1660,
+        1065,
+        909.5999755859375
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 4,
+      "title": "采样",
+      "bounding": [
+        3180,
+        760,
+        2170,
+        860
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 5,
+      "title": "redux",
+      "bounding": [
+        4320,
+        1660,
+        1930,
+        1570
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 6,
+      "title": "控制",
+      "bounding": [
+        6720,
+        1580,
+        1065,
+        909.5999755859375
+      ],
+      "color": "#3f789e",
+      "font_size": 66,
+      "flags": {}
+    },
+    {
+      "id": 7,
+      "title": "采样",
+      "bounding": [
+        6720,
+        710,
+        2160,
+        839.5999755859375
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.4240976183724866,
+      "offset": [
+        -2589.913079256886,
+        -641.828486640298
+      ]
+    },
+    "ue_links": [],
+    "VHS_latentpreview": false,
+    "VHS_latentpreviewrate": 0,
+    "VHS_MetadataImage": true,
+    "VHS_KeepIntermediate": true,
+    "links_added_by_ue": []
+  },
+  "version": 0.4
+}

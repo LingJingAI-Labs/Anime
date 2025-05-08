@@ -12,7 +12,8 @@ AIHUBMIX_API_KEY = os.getenv("AIHUBMIX_API_KEY")
 AIHUBMIX_API_URL = "https://aihubmix.com/v1/chat/completions"
 # 指定要使用的模型 ID (确保这个模型支持图像输入，如 gpt-4o, gpt-4-vision-preview 等)
 # 你可以根据 Aihubmix 支持的模型列表进行修改
-MODEL_ID = "gpt-4o-mini" # 或者 "gpt-4o-mini", "gpt-4-vision-preview" 等
+MODEL_ID = "gemini-2.5-flash-preview-04-17-nothink" # 或者 "gpt-4o-mini", "gpt-4-vision-preview" 等
+# MODEL_ID = "gpt-4o-mini"
 MAX_TOKENS_OUTPUT = 300 # 限制生成提示词的长度
 REQUEST_TIMEOUT = 60 # 请求超时时间（秒）
 
@@ -62,12 +63,13 @@ def generate_anime_prompt(image_path: str) -> str | None:
 
     # 这里的 user_prompt 指导模型如何工作
     user_prompt = (
-        "请仔细分析提供的这张图像。\n"
+        "请仔细分析提供的这张中国古装短剧的图像。\n"
         "你的任务是生成一个详细的英文文本提示词 (prompt)，这个提示词可以被 AI 图像生成模型（Stable Diffusion）使用，来创作出这张图像的【2D动漫风格】版本。\n"
         "提示词应该包含关键元素、主体、构图、色彩、光线、氛围，并明确指示生成【动漫或动画艺术风格】(anime or animation art style)。\n"
         "请专注于捕捉原始图像的精髓，并将其转化为动漫美学。\n"
-        "如果是男性请务必在提示词开头添加'1boy'\n"
-        "如果是女性请务必在提示词开头添加'1girl, '\n"
+        "如果出现人物，注意描述人物的服装、动作、姿态、表情等。\n"
+        # "如果是男性请务必在提示词开头添加'1boy'\n"
+        # "如果是女性请务必在提示词开头添加'1girl, '\n"
         "如果图像中没有出现人物/人脸，则在提示词开头添加'Empty shot'\n"
         "输出只需要包含生成的英文提示词本身，不要添加任何额外的解释或说明文字。"
     )
@@ -163,7 +165,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--image_path", # 参数名称
-        default="data/initial_frames/test-05_keyframe_00m06s833ms_03.jpg",
+        default="data/250508/场景1/01/32C04 特写主角，向前伸手.png",
         type=str,      # 参数类型
         help="需要生成提示词的输入图像文件路径。" # 帮助信息
     )

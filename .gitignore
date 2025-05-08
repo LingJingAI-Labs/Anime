@@ -6,3 +6,5 @@ _pycache_/
 *.pyc
 
 .DS_Store
+
+data/tmp/
