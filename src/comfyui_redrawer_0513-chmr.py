@@ -29,24 +29,24 @@ except ImportError:
 # --------------- 配置参数 ---------------
 SERVER_IPS = [
     "http://comfyui-demo.lingjingai.cn",
-    "http://comfyui-demo2.lingjingai.cn",
-    "http://comfyui-demo3.lingjingai.cn",
-    "http://comfyui-demo4.lingjingai.cn",
-    "http://comfyui-demo5.lingjingai.cn",
-    "http://comfyui-demo6.lingjingai.cn",
-    "http://comfyui-demo7.lingjingai.cn",
-    "http://comfyui-demo8.lingjingai.cn",
-    "http://comfyui-demo9.lingjingai.cn",
-    "http://comfyui-demo10.lingjingai.cn",
-    "http://comfyui-demo11.lingjingai.cn",
-    "http://comfyui-demo12.lingjingai.cn",
+    # "http://comfyui-demo2.lingjingai.cn",
+    # "http://comfyui-demo3.lingjingai.cn",
+    # "http://comfyui-demo4.lingjingai.cn",
+    # "http://comfyui-demo5.lingjingai.cn",
+    # "http://comfyui-demo6.lingjingai.cn",
+    # "http://comfyui-demo7.lingjingai.cn",
+    # "http://comfyui-demo8.lingjingai.cn",
+    # "http://comfyui-demo9.lingjingai.cn",
+    # "http://comfyui-demo10.lingjingai.cn",
+    # "http://comfyui-demo11.lingjingai.cn",
+    # "http://comfyui-demo12.lingjingai.cn",
     # 根据需要添加其他服务器IP
 ]
 NUM_WORKERS = len(SERVER_IPS) # 并发工作线程数 = 服务器数量
 
 NUM_ITERATIONS = 10 # 对所有图像的迭代次数
 
-BASE_INPUT_DIR = "data/250511" # 包含场景文件夹的根目录 (主图的本地路径)
+BASE_INPUT_DIR = "data/250513" # 包含场景文件夹的根目录 (主图的本地路径)
 
 # --- MODIFIED: 本地 Mask 文件路径配置 ---
 # 这些是 Mask 文件在您本地计算机上的路径。脚本会将它们上传到 ComfyUI 服务器。
@@ -82,7 +82,7 @@ LORA_MAPPING = {
 }
 # --- !! 人工编辑区结束 !! ---
 
-LORA_PROMPTS = {
+LORA_PROMPTS = { # 用于更新节点 "216" (或其他指定节点) 的文本输入
     "00": "",
     "01": "a man char01 with short black hair, wearing a brown jacket over a white t-shirt, Wearing a black watch with a white dial,",
     "02": "a woman char02, long black dress, bare_shoulders, ",
@@ -103,9 +103,10 @@ SHOTS_TO_SKIP_SCENE_MASK = ["02"] # 如果 SCENE_MASK_NODE_ID 被使用，这些
 
 # --- 工作流中的节点 ID ---
 IMAGE_INPUT_NODE_ID = "74"     # 加载主输入图像 (上传的) 的节点 ID
-PROMPT_NODE_ID = "146"         # Positive Prompt 输入的节点 ID
+PROMPT_NODE_ID = "146"         # Positive Prompt 输入的节点 ID (通常由AI生成提示或LoRA特定提示覆盖)
 SCENE_MASK_NODE_ID = None      # 场景 Mask 节点 ID。如果工作流中无此节点或不想使用，请设为 None。原值 "190"
 SUBTITLE_MASK_NODE_ID = "214"  # 其 'inputs.image' 将被设置为上传的字幕 Mask 的节点 ID
+TEXT_MULTILINE_NODE_ID = "216" # 需要根据 LORA_PROMPTS 更新 'inputs.text' 的多行文本节点 ID
 
 # --- 执行控制 ---
 MAX_WAIT_TIME = 360             # 等待 ComfyUI 任务完成的最长时间 (秒)
@@ -230,8 +231,9 @@ class ComfyUITester:
                         shot_folder_name: str, scene_num_str: str) -> dict | None:
         """
         更新加载的工作流字典。
-        主图像, 提示词, LoRA, 种子会被更新。
-        场景 Mask (如果 SCENE_MASK_NODE_ID 已配置且节点存在) 和字幕 Mask 将从本地上传 (如果配置且文件存在)，然后更新对应节点。
+        主图像, 提示词 (PROMPT_NODE_ID), LoRA, 种子会被更新。
+        场景 Mask (如果 SCENE_MASK_NODE_ID 被配置且节点存在) 和字幕 Mask 将从本地上传 (如果配置且文件存在)，然后更新对应节点。
+        新增：更新 TEXT_MULTILINE_NODE_ID 的文本内容。
         """
         if not workflow:
             self._log_error("update_workflow 收到无效的工作流 (None)。")
@@ -250,13 +252,13 @@ class ComfyUITester:
             self._log_error(f"主图像节点 ID '{IMAGE_INPUT_NODE_ID}' 在工作流中未找到。")
             return None
 
-        # --- 更新提示词输入 ---
+        # --- 更新AI生成的提示词输入 (PROMPT_NODE_ID) ---
         if PROMPT_NODE_ID in modified_workflow:
              if "inputs" in modified_workflow[PROMPT_NODE_ID] and "text" in modified_workflow[PROMPT_NODE_ID]["inputs"]:
-                if generated_prompt:
+                if generated_prompt: # AI生成的提示优先
                     modified_workflow[PROMPT_NODE_ID]["inputs"]["text"] = generated_prompt
                     self._log_verbose(f"    更新提示词节点 '{PROMPT_NODE_ID}' 为AI生成内容。")
-                else:
+                else: # AI未生成提示，保留工作流默认
                     default_prompt = modified_workflow[PROMPT_NODE_ID]["inputs"].get("text", "未定义默认提示")
                     self._log_verbose(f"    未提供AI提示词。节点 '{PROMPT_NODE_ID}' 使用工作流默认值: '{default_prompt[:50]}...'")
              else:
@@ -265,7 +267,6 @@ class ComfyUITester:
              self._log_verbose(f"提示: 提示词节点 ID '{PROMPT_NODE_ID}' 在工作流中未找到。")
 
         # --- 更新场景 Mask  ---
-        # 如果 SCENE_MASK_NODE_ID 为 None (已在配置中修改)，则此块代码不会执行
         if SCENE_MASK_NODE_ID: 
             if SCENE_MASK_NODE_ID in modified_workflow:
                 if "inputs" in modified_workflow[SCENE_MASK_NODE_ID] and "image" in modified_workflow[SCENE_MASK_NODE_ID]["inputs"]:
@@ -273,34 +274,10 @@ class ComfyUITester:
                         default_mask_ref = modified_workflow[SCENE_MASK_NODE_ID]["inputs"].get("image", "未定义默认蒙版")
                         self._log_verbose(f"    镜头 '{shot_folder_name}' 在跳过列表。场景蒙版节点 '{SCENE_MASK_NODE_ID}' 保留工作流默认值: '{default_mask_ref}'")
                     else:
-                        # 当前激活的是硬编码路径逻辑
                         scene_mask_fname = SCENE_MASK_LOCAL_FILENAME_TEMPLATE.format(scene_num=scene_num_str)
                         uploaded_scene_mask_ref =  os.path.join('/data/comfyui/input/wuji/mask', scene_mask_fname)
                         modified_workflow[SCENE_MASK_NODE_ID]["inputs"]["image"] = uploaded_scene_mask_ref
                         self._log_verbose(f"    场景Mask节点 '{SCENE_MASK_NODE_ID}' 更新为硬编码路径: '{uploaded_scene_mask_ref}' (基于文件名 '{scene_mask_fname}')")
-                        
-                    # 以下是原先注释掉的本地上传逻辑，如果需要恢复本地上传，请取消注释这部分并注释掉上面的硬编码路径逻辑
-                    # elif BASE_MASK_DIR_LOCAL and SCENE_MASK_LOCAL_FILENAME_TEMPLATE:
-                    #     try:
-                    #         scene_mask_fname = SCENE_MASK_LOCAL_FILENAME_TEMPLATE.format(scene_num=scene_num_str)
-                    #         local_scene_mask_path = os.path.join(BASE_MASK_DIR_LOCAL, scene_mask_fname)
-                    #         
-                    #         uploaded_scene_mask_ref = self._upload_single_image(
-                    #             local_scene_mask_path,
-                    #             subfolder=MASK_UPLOAD_SUBFOLDER_ON_SERVER,
-                    #             image_type_for_log="场景Mask"
-                    #         )
-                    #         if uploaded_scene_mask_ref:
-                    #             modified_workflow[SCENE_MASK_NODE_ID]["inputs"]["image"] = uploaded_scene_mask_ref
-                    #             self._log_verbose(f"    场景Mask '{scene_mask_fname}' 上传成功。节点 '{SCENE_MASK_NODE_ID}' 更新为: '{uploaded_scene_mask_ref}'")
-                    #         else:
-                    #             self._log_info(f"    本地场景Mask '{local_scene_mask_path}' 上传失败或未找到。节点 '{SCENE_MASK_NODE_ID}' 将保留工作流默认值。")
-                    #     except KeyError:
-                    #          self._log_error(f"错误: SCENE_MASK_LOCAL_FILENAME_TEMPLATE ('{SCENE_MASK_LOCAL_FILENAME_TEMPLATE}') 中缺少 '{{scene_num}}' 占位符或格式化错误。")
-                    #     except Exception as e:
-                    #          self._log_error(f"处理本地场景Mask时发生错误: {e}。节点 '{SCENE_MASK_NODE_ID}' 将保留工作流默认值。")
-                    # else:
-                    #      self._log_verbose(f"    本地场景Mask路径或模板未配置 (BASE_MASK_DIR_LOCAL, SCENE_MASK_LOCAL_FILENAME_TEMPLATE)。场景蒙版节点 '{SCENE_MASK_NODE_ID}' 保留工作流默认值。")
                 else:
                      self._log_verbose(f"警告: 场景蒙版节点 '{SCENE_MASK_NODE_ID}' 结构不正确 (缺少 inputs 或 image 键)。")
             else:
@@ -312,26 +289,8 @@ class ComfyUITester:
         if SUBTITLE_MASK_NODE_ID:
             if SUBTITLE_MASK_NODE_ID in modified_workflow:
                 if "inputs" in modified_workflow[SUBTITLE_MASK_NODE_ID] and "image" in modified_workflow[SUBTITLE_MASK_NODE_ID]["inputs"]:
-                    # 当前激活的是硬编码路径逻辑
                     modified_workflow[SUBTITLE_MASK_NODE_ID]["inputs"]["image"] = "/data/comfyui/input/wuji/mask/subtitle-mask.png"
                     self._log_verbose(f"    字幕Mask节点 '{SUBTITLE_MASK_NODE_ID}' 更新为硬编码路径: '/data/comfyui/input/wuji/mask/subtitle-mask.png'")
-
-                    # 以下是原先注释掉的本地上传逻辑
-                    # if BASE_MASK_DIR_LOCAL and SUBTITLE_MASK_LOCAL_FILENAME:
-                    #     local_subtitle_mask_path = os.path.join(BASE_MASK_DIR_LOCAL, SUBTITLE_MASK_LOCAL_FILENAME)
-                    #     uploaded_subtitle_mask_ref = self._upload_single_image(
-                    #         local_subtitle_mask_path,
-                    #         subfolder=MASK_UPLOAD_SUBFOLDER_ON_SERVER,
-                    #         image_type_for_log="字幕Mask"
-                    #     )
-                    #     if uploaded_subtitle_mask_ref:
-                    #         modified_workflow[SUBTITLE_MASK_NODE_ID]["inputs"]["image"] = uploaded_subtitle_mask_ref
-                    #         self._log_verbose(f"    字幕Mask '{SUBTITLE_MASK_LOCAL_FILENAME}' 上传成功。节点 '{SUBTITLE_MASK_NODE_ID}' 更新为: '{uploaded_subtitle_mask_ref}'")
-                    #     else:
-                    #         self._log_info(f"    本地字幕Mask '{local_subtitle_mask_path}' 上传失败或未找到。节点 '{SUBTITLE_MASK_NODE_ID}' 将保留工作流默认值。")
-                    # else:
-                    #     default_mask_ref = modified_workflow[SUBTITLE_MASK_NODE_ID]["inputs"].get("image", "未定义默认蒙版")
-                    #     self._log_verbose(f"    本地字幕Mask路径或文件名未配置 (BASE_MASK_DIR_LOCAL, SUBTITLE_MASK_LOCAL_FILENAME)。字幕蒙版节点 '{SUBTITLE_MASK_NODE_ID}' 保留工作流默认值: '{default_mask_ref}'")
                 else:
                     self._log_verbose(f"警告: 字幕蒙版节点 '{SUBTITLE_MASK_NODE_ID}' 结构不正确 (缺少 inputs 或 image 键)。")
             else:
@@ -359,6 +318,30 @@ class ComfyUITester:
                 self._log_error(f"LoRA 节点 '{LORA_NODE_ID}' 结构不正确。无法动态调整 LoRA。")
         else:
             self._log_verbose(f"提示: LoRA 节点 ID '{LORA_NODE_ID}' 在工作流中未找到。跳过 LoRA 调整。")
+
+        # --- 新增: 更新多行文本节点 (TEXT_MULTILINE_NODE_ID) 的 'text' 输入 ---
+        if TEXT_MULTILINE_NODE_ID in modified_workflow:
+            text_node = modified_workflow[TEXT_MULTILINE_NODE_ID]
+            if "inputs" in text_node and "text" in text_node["inputs"]:
+                # 优先使用 LORA_PROMPTS 中与 shot_folder_name 匹配的条目
+                # 如果 shot_folder_name 不在 LORA_PROMPTS 中, 则后备到 LORA_PROMPTS["00"] 的内容
+                # 如果 LORA_PROMPTS["00"] 也不存在, 则后备到空字符串 ""
+                prompt_text_to_use = LORA_PROMPTS.get(shot_folder_name, LORA_PROMPTS.get("00", ""))
+                
+                text_node["inputs"]["text"] = prompt_text_to_use
+                
+                log_prompt_text = prompt_text_to_use.replace('\n', ' ') # 确保日志中不换行
+                if len(log_prompt_text) > 70: log_prompt_text = log_prompt_text[:70] + "..."
+
+                if shot_folder_name in LORA_PROMPTS:
+                    self._log_verbose(f"    更新多行文本节点 '{TEXT_MULTILINE_NODE_ID}' 的 'text' 为 (来自LORA_PROMPTS for '{shot_folder_name}'): \"{log_prompt_text}\"")
+                else:
+                    self._log_info(f"    镜头 '{shot_folder_name}' 在 LORA_PROMPTS 中未找到明确映射。多行文本节点 '{TEXT_MULTILINE_NODE_ID}' 的 'text' 已设置为 LORA_PROMPTS['00'] 的内容 (或空字符串): \"{log_prompt_text}\"")
+            else:
+                self._log_error(f"多行文本节点 '{TEXT_MULTILINE_NODE_ID}' 结构不正确 (缺少 'inputs' 或 'inputs.text')。无法更新文本。")
+        else:
+            self._log_verbose(f"提示: 多行文本节点 ID '{TEXT_MULTILINE_NODE_ID}' 在工作流中未找到。跳过其文本更新。")
+
 
         # --- 更新 Sampler 种子 ---
         random_seed = random.randint(0, 2**32 - 1)
@@ -570,7 +553,7 @@ class ComfyUITester:
                       current_iteration_num: int, shot_folder_name: str, scene_num_str: str) -> tuple[list[str], float]:
         """
         处理单个图像的完整流程:
-        加载 WF -> (主图像路径已硬编码修改) -> 生成 Prompt -> 更新 WF (Masks路径已硬编码修改) -> 提交 -> 等待 -> 下载。
+        加载 WF -> (主图像路径已硬编码修改) -> 生成 Prompt -> 更新 WF (Masks路径已硬编码修改, 新增TEXT_MULTILINE_NODE_ID文本更新) -> 提交 -> 等待 -> 下载。
         返回元组: (下载的图像路径列表, 总任务时长)。
         """
         task_start_time = time.time()
@@ -582,22 +565,21 @@ class ComfyUITester:
             return [], time.time() - task_start_time
         
         # --- 2. 主图像路径处理 (使用硬编码转换规则) ---
-        # 原上传逻辑: uploaded_main_image_ref = self.upload_main_image(main_image_path)
-        uploaded_main_image_ref = main_image_path.replace("data/250511", "/data/comfyui/input/wuji/250512")
+        uploaded_main_image_ref = main_image_path.replace("data/250511", "/data/comfyui/input/chmr/250513")
         self._log_verbose(f"    主图像服务器路径设置为: '{uploaded_main_image_ref}' (基于本地: '{main_image_path}')")
 
 
-        # --- 3. 生成 AI 提示词 (可选) ---
-        anime_prompt = generate_anime_prompt_wrapper(
+        # --- 3. 生成 AI 提示词 (可选, 用于 PROMPT_NODE_ID) ---
+        anime_prompt_for_main_slot = generate_anime_prompt_wrapper(
             main_image_path, self._log_info, self._log_error, self._log_verbose
         )
 
-        # --- 4. 更新工作流 (Masks路径已硬编码在update_workflow中) ---
+        # --- 4. 更新工作流 (Masks路径已硬编码在update_workflow中, 新增TEXT_MULTILINE_NODE_ID文本更新) ---
         modified_workflow = self.update_workflow(
             workflow=workflow_template,
             main_image_ref=uploaded_main_image_ref,
-            generated_prompt=anime_prompt,
-            shot_folder_name=shot_folder_name,
+            generated_prompt=anime_prompt_for_main_slot, # 这个是给 PROMPT_NODE_ID 的
+            shot_folder_name=shot_folder_name, # 这个用于 LoRA 和 TEXT_MULTILINE_NODE_ID
             scene_num_str=scene_num_str 
         )
         if not modified_workflow:
@@ -653,41 +635,28 @@ if __name__ == "__main__":
         print(f"将使用基础工作流: {base_workflow_full_path}")
 
     # --- 打印 Mask 配置信息 ---
-    print("\nMask 配置:")
-    # 对于 SCENE_MASK_NODE_ID，由于已设为 None，将打印 "不处理" 的信息
-    if SCENE_MASK_NODE_ID and SCENE_MASK_LOCAL_FILENAME_TEMPLATE and BASE_MASK_DIR_LOCAL: # SCENE_MASK_NODE_ID is None, so this won't run
+    print("\nMask 和其他动态节点配置:")
+    if SCENE_MASK_NODE_ID: # SCENE_MASK_NODE_ID is None
         print(f"  - 场景 Mask (节点 {SCENE_MASK_NODE_ID}):")
-        print(f"    - 将尝试从本地目录 '{BASE_MASK_DIR_LOCAL}' 上传。")
-        print(f"    - 使用文件名模板 '{SCENE_MASK_LOCAL_FILENAME_TEMPLATE}' (例如: '{os.path.join(BASE_MASK_DIR_LOCAL, SCENE_MASK_LOCAL_FILENAME_TEMPLATE.format(scene_num='X'))}')。")
-        if MASK_UPLOAD_SUBFOLDER_ON_SERVER:
-            print(f"    - 上传到服务器 ComfyUI input 子目录: '{MASK_UPLOAD_SUBFOLDER_ON_SERVER}'。")
-        else:
-            print(f"    - 上传到服务器 ComfyUI input 根目录。")
-        if SHOTS_TO_SKIP_SCENE_MASK:
-             print(f"    - 将跳过镜头 {SHOTS_TO_SKIP_SCENE_MASK} 的场景 Mask 上传和设置。")
-    elif SCENE_MASK_NODE_ID: # SCENE_MASK_NODE_ID is None, so this won't run
-        print(f"  - 场景 Mask (节点 {SCENE_MASK_NODE_ID}): 本地场景 Mask 路径或模板未完全配置，将保留工作流默认值。")
-    else: # This will run because SCENE_MASK_NODE_ID is None
+        # ... (原逻辑，当前由于SCENE_MASK_NODE_ID=None不会执行)
+    else:
         print("  - 场景 Mask: SCENE_MASK_NODE_ID 未配置 (设为 None)，不处理场景 Mask。")
 
-    # 字幕 Mask 逻辑（使用硬编码路径）
     if SUBTITLE_MASK_NODE_ID:
         print(f"  - 字幕 Mask (节点 {SUBTITLE_MASK_NODE_ID}):")
         print(f"    - 将在工作流中硬编码字幕 Mask 路径为: '/data/comfyui/input/wuji/mask/subtitle-mask.png'")
-        # 以下注释掉的是原本地上传的描述
-        # if SUBTITLE_MASK_LOCAL_FILENAME and BASE_MASK_DIR_LOCAL:
-        #    local_subtitle_path_example = os.path.join(BASE_MASK_DIR_LOCAL, SUBTITLE_MASK_LOCAL_FILENAME)
-        #    print(f"    - 将尝试从本地文件 '{local_subtitle_path_example}' 上传。")
-        #    if MASK_UPLOAD_SUBFOLDER_ON_SERVER:
-        #        print(f"    - 上传到服务器 ComfyUI input 子目录: '{MASK_UPLOAD_SUBFOLDER_ON_SERVER}'。")
-        #    else:
-        #        print(f"    - 上传到服务器 ComfyUI input 根目录。")
-        # else:
-        #    print(f"    - 本地字幕 Mask 路径或文件名未完全配置，将保留工作流默认值或硬编码路径。")
     else:
          print("  - 字幕 Mask: SUBTITLE_MASK_NODE_ID 未配置，不处理。")
     
     print("  (注意: 主图像和Mask路径当前在脚本中是基于特定规则进行硬编码转换或直接设置的)")
+
+    # --- 打印动态文本节点配置信息 ---
+    if TEXT_MULTILINE_NODE_ID:
+        print(f"  - 多行文本节点 (节点 {TEXT_MULTILINE_NODE_ID}):")
+        print(f"    - 其 'inputs.text' 将根据当前镜头的 'shot_folder_name' 从 LORA_PROMPTS 字典中动态填充。")
+        print(f"    - 如果镜头文件夹名在 LORA_PROMPTS 中没有直接匹配，将使用 LORA_PROMPTS['00'] 的内容作为后备。")
+    else:
+        print("  - 多行文本节点: TEXT_MULTILINE_NODE_ID 未配置，不进行动态文本更新。")
 
 
     # --- 准备任务列表 ---
@@ -739,6 +708,14 @@ if __name__ == "__main__":
 
                 if shot_folder_name_calc not in LORA_MAPPING:
                      print(f"警告 [扫描]: 在 LORA_MAPPING 配置中未找到镜头 '{shot_folder_name_calc}' 的映射。将使用工作流默认 LoRA/强度。")
+                
+                # 为 TEXT_MULTILINE_NODE_ID 检查 LORA_PROMPTS
+                if shot_folder_name_calc not in LORA_PROMPTS and "00" not in LORA_PROMPTS: # 仅当特定镜头和 "00" 都不在时警告
+                     print(f"警告 [扫描]: 镜头 '{shot_folder_name_calc}' 在 LORA_PROMPTS 中未找到，且 LORA_PROMPTS 中无 '00' 后备项。节点 '{TEXT_MULTILINE_NODE_ID}' 的文本可能为空。")
+                elif shot_folder_name_calc not in LORA_PROMPTS : # 特定镜头不在，但有 "00"
+                     if VERBOSE_LOGGING or shot_folder_name_calc != "00": # 避免 "00" 自身的后备情况也打印
+                         print(f"提示 [扫描]: 镜头 '{shot_folder_name_calc}' 在 LORA_PROMPTS 中无直接映射，将使用 LORA_PROMPTS['00'] 的内容更新节点 '{TEXT_MULTILINE_NODE_ID}'。")
+
 
                 for image_filename_calc in image_files_calc:
                     total_images_found_in_scan += 1
@@ -876,22 +853,29 @@ if __name__ == "__main__":
     print(f"{'='*25} 所有处理已完成 {'='*25}")
     print(f"总迭代轮数: {NUM_ITERATIONS}")
     print(f"使用基础工作流: {BASE_WORKFLOW_FILENAME}")
-    print(f"LoRA 节点 '{LORA_NODE_ID}' 已根据镜头动态调整。")
     
-    # 最终 Mask 总结
-    if SCENE_MASK_NODE_ID: # This will be false
-        print(f"已尝试在节点 {SCENE_MASK_NODE_ID} 中设置场景 Mask (从本地 '{BASE_MASK_DIR_LOCAL}/{SCENE_MASK_LOCAL_FILENAME_TEMPLATE}' 上传, 跳过: {SHOTS_TO_SKIP_SCENE_MASK if SHOTS_TO_SKIP_SCENE_MASK else '无'})")
+    print("-" * 60)
+    print("动态节点调整总结:")
+    print(f"  - LoRA 节点 '{LORA_NODE_ID}' 已根据镜头动态调整。")
+    
+    if SCENE_MASK_NODE_ID:
+        print(f"  - 场景 Mask (节点 {SCENE_MASK_NODE_ID}): 已尝试设置 (从本地 '{BASE_MASK_DIR_LOCAL}/{SCENE_MASK_LOCAL_FILENAME_TEMPLATE}' 上传, 跳过: {SHOTS_TO_SKIP_SCENE_MASK if SHOTS_TO_SKIP_SCENE_MASK else '无'})")
     else:
-        print(f"场景 Mask: SCENE_MASK_NODE_ID 未配置 (设为 None)，未处理场景 Mask。")
+        print(f"  - 场景 Mask: SCENE_MASK_NODE_ID 未配置 (设为 None)，未处理。")
         
     if SUBTITLE_MASK_NODE_ID: 
-        print(f"已尝试在节点 {SUBTITLE_MASK_NODE_ID} 中设置字幕 Mask (使用硬编码路径 '/data/comfyui/input/wuji/mask/subtitle-mask.png')")
+        print(f"  - 字幕 Mask (节点 {SUBTITLE_MASK_NODE_ID}): 已尝试设置 (使用硬编码路径 '/data/comfyui/input/wuji/mask/subtitle-mask.png')")
+    else:
+        print(f"  - 字幕 Mask: SUBTITLE_MASK_NODE_ID 未配置，未处理。")
+
+    if TEXT_MULTILINE_NODE_ID:
+        print(f"  - 多行文本 (节点 {TEXT_MULTILINE_NODE_ID}): 其 'inputs.text' 已根据 LORA_PROMPTS 和镜头文件夹名动态填充。")
+    else:
+        print(f"  - 多行文本: TEXT_MULTILINE_NODE_ID 未配置，未处理。")
     
     # MASK_UPLOAD_SUBFOLDER_ON_SERVER 仅在实际发生上传时相关，当前硬编码路径逻辑不直接使用它。
-    # 但如果未来恢复上传，此配置项依然有用。
-    if MASK_UPLOAD_SUBFOLDER_ON_SERVER and (False): # (False) placeholder, as no mask uploads are active
-         print(f"Mask 文件 (若通过脚本上传) 会尝试上传到服务器子目录: '{MASK_UPLOAD_SUBFOLDER_ON_SERVER}'")
-
+    if MASK_UPLOAD_SUBFOLDER_ON_SERVER and (False): # (False) placeholder
+         print(f"  - Mask 文件 (若通过脚本上传) 会尝试上传到服务器子目录: '{MASK_UPLOAD_SUBFOLDER_ON_SERVER}'")
 
     print("-" * 60)
     print(f"计划处理的任务总数: {total_tasks_to_process}")
