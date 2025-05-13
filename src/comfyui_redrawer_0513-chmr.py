@@ -1,7 +1,3 @@
-# --- START OF FILE comfyui_redrawer_0512_local_mask_upload.py ---
-# 基于 comfyui_redrawer_0512_direct_json_mod.py
-# 修改为从本地上传 Mask 文件，而不是直接引用服务器上的固定路径。
-
 import json
 import requests
 import time
@@ -64,31 +60,25 @@ WORKFLOW_BASE_DIR = "workflow" # 包含基础工作流 JSON 的目录 (本地路
 OUTPUT_FOLDER = os.path.join(BASE_INPUT_DIR, "opt_auto") # 生成图像的输出目录 (本地路径)
 
 # --- 统一工作流和动态 LoRA 配置 ---
-BASE_WORKFLOW_FILENAME = "FLUX-0512-base.json" # 用于所有任务的单个工作流文件
+BASE_WORKFLOW_FILENAME = "chmr-0513-base.json" # 用于所有任务的单个工作流文件
 LORA_NODE_ID = "12" # 工作流中 "Lora Loader Stack" 节点的 ID
 DEFAULT_LORA_STRENGTH_02 = 1.0 # 使用特定 LoRA 时 lora_02 的默认强度
 
 # --- !! 人工编辑区: 定义镜头文件夹名称到 LoRA 文件名的映射 !! ---
 LORA_MAPPING = {
     "00": "None",
-    "01": "wuji/char/陈天极/char01陈天极.safetensors",
-    "03": "wuji/char/欧阳南/char03欧阳南.safetensors",
-    "04": "wuji/char/柳如月/char04柳如月.safetensors",
-    "10": "wuji/char/方天行/char10方天行.safetensors",
-    "11": "wuji/char/金蕴/char11金蕴.safetensors",
-    "13": "wuji/char/外门长老1/char13外门长老1.safetensors",
-    "14": "wuji/char/外门长老2/char14外门长老2.safetensors",
-    "15": "wuji/char/魏不凡/char15魏不凡.safetensors",
-    "16": "wuji/char/外门长老3/char16外门长老3.safetensors",
-    "18": "wuji/char/器灵/char18器灵.safetensors",
-    "19": "wuji/char/黑供奉/char19黑供奉.safetensors",
-    "20": "wuji/char/火长老/char20火长老.safetensors",
-    "21": "wuji/char/叶天穹/char21叶天穹.safetensors",
-    "25": "wuji/char/金长老/char25金长老.safetensors",
-    "26": "wuji/char/木长老/char26木长老.safetensors",
-    "27": "wuji/char/土长老/char27土长老.safetensors",
-    "28": "wuji/char/水长老/char28水长老.safetensors",
-    "30": "wuji/char/小师妹/char30小师妹.safetensors",
+    "01": "mori/char01秦云#/char01_V3.safetensors",
+    "02": "mori/char02萧灵#/char02.safetensors",
+    "03": "mori/char03蔡成安#/char03.safetensors",
+    "04": "mori/char04蔡晓霞#/char04.safetensors",
+    "07": "mori/char07张思思#/char07.safetensors",
+    "09": "mori/char09虎哥#/char09.safetensors",
+    "10": "mori/char10绿衣男#/char10.safetensors",
+    "11": "mori/char11周学兵#/char11.safetensors",
+    "12": "mori/char12售货员#/char12.safetensors",
+    "13": "mori/char13王大妈#/char13.safetensors",
+    "15": "mori/char15周雪#/char15.safetensors",
+    "16": "mori/char16刘大爷#/char16.safetensors",
 }
 # --- !! 人工编辑区结束 !! ---
 
@@ -99,7 +89,7 @@ SHOTS_TO_SKIP_SCENE_MASK = ["02"]
 IMAGE_INPUT_NODE_ID = "74"     # 加载主输入图像 (上传的) 的节点 ID
 PROMPT_NODE_ID = "227"         # Positive Prompt 输入的节点 ID
 SCENE_MASK_NODE_ID = "190"     # 其 'inputs.image' 将被设置为上传的场景 Mask 的节点 ID
-SUBTITLE_MASK_NODE_ID = "229"  # 其 'inputs.image' 将被设置为上传的字幕 Mask 的节点 ID
+SUBTITLE_MASK_NODE_ID = "214"  # 其 'inputs.image' 将被设置为上传的字幕 Mask 的节点 ID
 
 # --- 执行控制 ---
 MAX_WAIT_TIME = 360             # 等待 ComfyUI 任务完成的最长时间 (秒)
@@ -262,7 +252,7 @@ class ComfyUITester:
         else:
              self._log_verbose(f"提示: 提示词节点 ID '{PROMPT_NODE_ID}' 在工作流中未找到。")
 
-        # --- 更新场景 Mask (从本地上传) ---
+        # --- 更新场景 Mask  ---
         if SCENE_MASK_NODE_ID:
             if SCENE_MASK_NODE_ID in modified_workflow:
                 if "inputs" in modified_workflow[SCENE_MASK_NODE_ID] and "image" in modified_workflow[SCENE_MASK_NODE_ID]["inputs"]:

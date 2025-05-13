@@ -1,0 +1,428 @@
+{
+  "6": {
+    "inputs": {
+      "anything": [
+        "12",
+        0
+      ],
+      "anything2": [
+        "12",
+        1
+      ],
+      "anything3": [
+        "210",
+        2
+      ]
+    },
+    "class_type": "Anything Everywhere3",
+    "_meta": {
+      "title": "全局输入3"
+    }
+  },
+  "12": {
+    "inputs": {
+      "lora_01": "CHMR_style_V3.safetensors",
+      "strength_01": 0.6000000000000001,
+      "lora_02": "mori/char01秦云#/char01_V3.safetensors",
+      "strength_02": 1.0000000000000002,
+      "lora_03": "Flux_Dev_4_step_lora.safetensors",
+      "strength_03": 1.0000000000000002,
+      "lora_04": "None",
+      "strength_04": 0,
+      "model": [
+        "210",
+        0
+      ],
+      "clip": [
+        "210",
+        1
+      ]
+    },
+    "class_type": "Lora Loader Stack (rgthree)",
+    "_meta": {
+      "title": "LoRA堆加载器"
+    }
+  },
+  "74": {
+    "inputs": {
+      "image": "E002C029.png"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "加载图像"
+    }
+  },
+  "78": {
+    "inputs": {
+      "seed": 1052547715099471,
+      "steps": 8,
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 0.6000000000000001,
+      "positive": [
+        "124",
+        0
+      ],
+      "negative": [
+        "124",
+        1
+      ],
+      "latent_image": [
+        "180",
+        0
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "K采样器"
+    }
+  },
+  "98": {
+    "inputs": {
+      "inputcount": 3,
+      "string_1": [
+        "146",
+        0
+      ],
+      "string_2": [
+        "216",
+        0
+      ],
+      "delimiter": " ",
+      "return_list": false,
+      "string_3": [
+        "215",
+        0
+      ]
+    },
+    "class_type": "JoinStringMulti",
+    "_meta": {
+      "title": "合并字符串（多重）"
+    }
+  },
+  "99": {
+    "inputs": {
+      "text": [
+        "98",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP文本编码器"
+    }
+  },
+  "100": {
+    "inputs": {
+      "guidance": 3.5,
+      "conditioning": [
+        "99",
+        0
+      ]
+    },
+    "class_type": "FluxGuidance",
+    "_meta": {
+      "title": "Flux引导"
+    }
+  },
+  "101": {
+    "inputs": {
+      "conditioning": [
+        "99",
+        0
+      ]
+    },
+    "class_type": "ConditioningZeroOut",
+    "_meta": {
+      "title": "条件零化"
+    }
+  },
+  "102": {
+    "inputs": {
+      "samples": [
+        "78",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE解码"
+    }
+  },
+  "103": {
+    "inputs": {
+      "filename_prefix": "ComfyUI",
+      "images": [
+        "102",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "保存图像"
+    }
+  },
+  "114": {
+    "inputs": {
+      "control_net_name": "Shakker-LabsFLUX.1-dev-ControlNet-Union-Pro-2.0.safetensors"
+    },
+    "class_type": "ControlNetLoader",
+    "_meta": {
+      "title": "ControlNet加载器"
+    }
+  },
+  "122": {
+    "inputs": {
+      "preprocessor": "DepthAnythingV2Preprocessor",
+      "resolution": 512,
+      "image": [
+        "213",
+        0
+      ]
+    },
+    "class_type": "AIO_Preprocessor",
+    "_meta": {
+      "title": "Aux集成预处理器"
+    }
+  },
+  "124": {
+    "inputs": {
+      "strength": 0.4000000000000001,
+      "start_percent": 0,
+      "end_percent": 0.6000000000000001,
+      "positive": [
+        "100",
+        0
+      ],
+      "negative": [
+        "101",
+        0
+      ],
+      "control_net": [
+        "114",
+        0
+      ],
+      "image": [
+        "122",
+        0
+      ]
+    },
+    "class_type": "ControlNetApplySD3",
+    "_meta": {
+      "title": "ControlNet应用"
+    }
+  },
+  "135": {
+    "inputs": {
+      "anything": [
+        "102",
+        0
+      ]
+    },
+    "class_type": "easy cleanGpuUsed",
+    "_meta": {
+      "title": "清理GPU占用"
+    }
+  },
+  "137": {
+    "inputs": {
+      "anything": [
+        "102",
+        0
+      ]
+    },
+    "class_type": "easy clearCacheAll",
+    "_meta": {
+      "title": "清除全部缓存"
+    }
+  },
+  "146": {
+    "inputs": {
+      "text": " a man char01 with short black hair, wearing a brown jacket over a white t-shirt, Wearing a black watch with a white dial,"
+    },
+    "class_type": "Text Multiline",
+    "_meta": {
+      "title": "多行文本"
+    }
+  },
+  "147": {
+    "inputs": {
+      "pixels": [
+        "213",
+        0
+      ]
+    },
+    "class_type": "VAEEncode",
+    "_meta": {
+      "title": "VAE编码"
+    }
+  },
+  "148": {
+    "inputs": {
+      "width": 1024,
+      "height": 1568,
+      "batch_size": 1
+    },
+    "class_type": "EmptyLatentImage",
+    "_meta": {
+      "title": "空Latent"
+    }
+  },
+  "153": {
+    "inputs": {
+      "samples": [
+        "147",
+        0
+      ],
+      "mask": [
+        "211",
+        0
+      ]
+    },
+    "class_type": "SetLatentNoiseMask",
+    "_meta": {
+      "title": "设置Latent噪波遮罩"
+    }
+  },
+  "164": {
+    "inputs": {
+      "clip_name": "sigclip_vision_patch14_384.safetensors"
+    },
+    "class_type": "CLIPVisionLoader",
+    "_meta": {
+      "title": "CLIP视觉加载器"
+    }
+  },
+  "167": {
+    "inputs": {
+      "style_model_name": "flux1-redux-dev.safetensors"
+    },
+    "class_type": "StyleModelLoader",
+    "_meta": {
+      "title": "风格模型加载器"
+    }
+  },
+  "180": {
+    "inputs": {
+      "index": [
+        "181",
+        0
+      ],
+      "value0": [
+        "147",
+        0
+      ],
+      "value1": [
+        "153",
+        0
+      ],
+      "value2": [
+        "148",
+        0
+      ]
+    },
+    "class_type": "easy anythingIndexSwitch",
+    "_meta": {
+      "title": "编号切换"
+    }
+  },
+  "181": {
+    "inputs": {
+      "Number": "0"
+    },
+    "class_type": "Int",
+    "_meta": {
+      "title": "整数"
+    }
+  },
+  "206": {
+    "inputs": {
+      "anything": [
+        "167",
+        0
+      ],
+      "anything2": [
+        "164",
+        0
+      ]
+    },
+    "class_type": "Anything Everywhere3",
+    "_meta": {
+      "title": "全局输入3"
+    }
+  },
+  "210": {
+    "inputs": {
+      "ckpt_name": "flux1-dev-fp8.safetensors"
+    },
+    "class_type": "CheckpointLoaderSimple",
+    "_meta": {
+      "title": "Checkpoint加载器(简易)"
+    }
+  },
+  "211": {
+    "inputs": {
+      "expand": 10,
+      "incremental_expandrate": 0,
+      "tapered_corners": true,
+      "flip_input": false,
+      "blur_radius": 10,
+      "lerp_alpha": 1,
+      "decay_factor": 1,
+      "fill_holes": false,
+      "mask": [
+        "74",
+        1
+      ]
+    },
+    "class_type": "GrowMaskWithBlur",
+    "_meta": {
+      "title": "遮罩模糊生长"
+    }
+  },
+  "213": {
+    "inputs": {
+      "device_mode": "AUTO",
+      "image": [
+        "74",
+        0
+      ],
+      "mask": [
+        "214",
+        1
+      ]
+    },
+    "class_type": "LaMaInpaint",
+    "_meta": {
+      "title": "LaMa Remove Object"
+    }
+  },
+  "214": {
+    "inputs": {
+      "image": "subtitle-mask.png"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "加载图像"
+    }
+  },
+  "215": {
+    "inputs": {
+      "text": "This is an illustration from an anime"
+    },
+    "class_type": "Text Multiline",
+    "_meta": {
+      "title": "多行文本"
+    }
+  },
+  "216": {
+    "inputs": {
+      "text": " a man char01 with short black hair, wearing a brown jacket over a white t-shirt, Wearing a black watch with a white dial,"
+    },
+    "class_type": "Text Multiline",
+    "_meta": {
+      "title": "多行文本"
+    }
+  }
+}
