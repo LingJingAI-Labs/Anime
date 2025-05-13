@@ -51,7 +51,7 @@ BASE_INPUT_DIR = "data/250511" # 包含场景文件夹的根目录 (主图的本
 # --- MODIFIED: 本地 Mask 文件路径配置 ---
 # 这些是 Mask 文件在您本地计算机上的路径。脚本会将它们上传到 ComfyUI 服务器。
 BASE_MASK_DIR_LOCAL = "data/mask" # 本地 Mask 文件的基础目录
-SCENE_MASK_LOCAL_FILENAME_TEMPLATE = "scene-{scene_num}-mask.png" # 本地场景 Mask 文件名模板，{scene_num} 会被替换
+SCENE_MASK_LOCAL_FILENAME_TEMPLATE = "scene-{scene_num}-mask.png" # 本地场景 Mask 文件名模板，{scene_num} 会被替换 (如果 SCENE_MASK_NODE_ID 被使用)
 SUBTITLE_MASK_LOCAL_FILENAME = "subtitle-mask.png"          # 本地字幕 Mask 的固定文件名。如果不用，设为 None 或 ""
 MASK_UPLOAD_SUBFOLDER_ON_SERVER = "clipspace"          # Mask 在 ComfyUI 服务器 input 目录中上传到的子文件夹 (例如 "masks_from_script")。为空则上传到 input 根目录。
 # --- End of Mask Filenames ---
@@ -82,13 +82,29 @@ LORA_MAPPING = {
 }
 # --- !! 人工编辑区结束 !! ---
 
+LORA_PROMPTS = {
+    "00": "",
+    "01": "a man char01 with short black hair, wearing a brown jacket over a white t-shirt, Wearing a black watch with a white dial,",
+    "02": "a woman char02, long black dress, bare_shoulders, ",
+    "03": "a man char03, black mid-length suit, unbuttoned, white shirt, white tissue",
+    "04": "A woman character 04, brown hair, gold necklace and earrings, red dress, bare shoulders.",
+    "07": "This is an image of the woman cha07 wearing White skirt",
+    "09": "This is a picture of old man char09, bald head, floral shirt, red suit, black pants",
+    "10": "This is a picture of man char10, tender green long-sleeved double pocket shirt, black pants, yellow skin, round glasses, messy and fluffy curly hair, mature",
+    "11": "This is a picture of man char11, bald head, (brown skin: 1.5), neck chain, camouflage vest inside, black sleeveless jacket, black work pants, brown coarse wrist short wrist guards exposed to the back of the hand",
+    "12": "a woman char12, brown eyes, brown footwear, brown hair, braided hair, bangs, short sleeves, brown skirt, long skirt, white shirt",
+    "13": "Here is a picture of an old woman named char13. She wears a brown-red cheongsam with a floral pattern. Her hair was tied in a high gray bun and her expression was arrogant",
+    "15": "a woman char15, light brown short hair to shoulders, ugly, fat, small head, light and dark purple mid-length sleeve dress, pink and brown skin, bow on the chest",
+    "16": "This is a picture of old man char16,gray shirt，Khaki pants",
+}
+
 # --- 定义哪些镜头跳过场景 Mask ---
-SHOTS_TO_SKIP_SCENE_MASK = ["02"]
+SHOTS_TO_SKIP_SCENE_MASK = ["02"] # 如果 SCENE_MASK_NODE_ID 被使用，这些镜头将跳过场景Mask
 
 # --- 工作流中的节点 ID ---
 IMAGE_INPUT_NODE_ID = "74"     # 加载主输入图像 (上传的) 的节点 ID
-PROMPT_NODE_ID = "227"         # Positive Prompt 输入的节点 ID
-SCENE_MASK_NODE_ID = "190"     # 其 'inputs.image' 将被设置为上传的场景 Mask 的节点 ID
+PROMPT_NODE_ID = "146"         # Positive Prompt 输入的节点 ID
+SCENE_MASK_NODE_ID = None      # 场景 Mask 节点 ID。如果工作流中无此节点或不想使用，请设为 None。原值 "190"
 SUBTITLE_MASK_NODE_ID = "214"  # 其 'inputs.image' 将被设置为上传的字幕 Mask 的节点 ID
 
 # --- 执行控制 ---
@@ -190,9 +206,6 @@ class ComfyUITester:
                     self._log_error(f"{image_type_for_log} '{filename}' 上传成功，但服务器响应中缺少'name'字段。")
                     return None
                 
-                # ComfyUI LoadImage 节点期望的路径是相对于其 input 目录的
-                # 如果有子文件夹，则是 "subfolder/filename.png"
-                # 如果没有子文件夹，则是 "filename.png"
                 final_image_reference = f"{server_subfolder.strip('/')}/{server_filename}" if server_subfolder else server_filename
                 self._log_verbose(f"    {image_type_for_log} '{filename}' 上传成功，服务器引用: '{final_image_reference}'")
                 return final_image_reference
@@ -211,7 +224,6 @@ class ComfyUITester:
 
     def upload_main_image(self, image_path: str) -> str | None:
         """上传主输入图像到服务器的 input 目录 (根目录或指定子目录)。"""
-        # 主图像通常直接上传到 input 根目录，除非有特殊需求
         return self._upload_single_image(image_path, subfolder="", image_type_for_log="主图像")
 
     def update_workflow(self, workflow: dict, main_image_ref: str, generated_prompt: str | None,
@@ -219,7 +231,7 @@ class ComfyUITester:
         """
         更新加载的工作流字典。
         主图像, 提示词, LoRA, 种子会被更新。
-        场景 Mask 和字幕 Mask 将从本地上传 (如果配置且文件存在)，然后更新对应节点。
+        场景 Mask (如果 SCENE_MASK_NODE_ID 已配置且节点存在) 和字幕 Mask 将从本地上传 (如果配置且文件存在)，然后更新对应节点。
         """
         if not workflow:
             self._log_error("update_workflow 收到无效的工作流 (None)。")
@@ -253,16 +265,21 @@ class ComfyUITester:
              self._log_verbose(f"提示: 提示词节点 ID '{PROMPT_NODE_ID}' 在工作流中未找到。")
 
         # --- 更新场景 Mask  ---
-        if SCENE_MASK_NODE_ID:
+        # 如果 SCENE_MASK_NODE_ID 为 None (已在配置中修改)，则此块代码不会执行
+        if SCENE_MASK_NODE_ID: 
             if SCENE_MASK_NODE_ID in modified_workflow:
                 if "inputs" in modified_workflow[SCENE_MASK_NODE_ID] and "image" in modified_workflow[SCENE_MASK_NODE_ID]["inputs"]:
                     if shot_folder_name in SHOTS_TO_SKIP_SCENE_MASK:
                         default_mask_ref = modified_workflow[SCENE_MASK_NODE_ID]["inputs"].get("image", "未定义默认蒙版")
                         self._log_verbose(f"    镜头 '{shot_folder_name}' 在跳过列表。场景蒙版节点 '{SCENE_MASK_NODE_ID}' 保留工作流默认值: '{default_mask_ref}'")
                     else:
+                        # 当前激活的是硬编码路径逻辑
                         scene_mask_fname = SCENE_MASK_LOCAL_FILENAME_TEMPLATE.format(scene_num=scene_num_str)
                         uploaded_scene_mask_ref =  os.path.join('/data/comfyui/input/wuji/mask', scene_mask_fname)
                         modified_workflow[SCENE_MASK_NODE_ID]["inputs"]["image"] = uploaded_scene_mask_ref
+                        self._log_verbose(f"    场景Mask节点 '{SCENE_MASK_NODE_ID}' 更新为硬编码路径: '{uploaded_scene_mask_ref}' (基于文件名 '{scene_mask_fname}')")
+                        
+                    # 以下是原先注释掉的本地上传逻辑，如果需要恢复本地上传，请取消注释这部分并注释掉上面的硬编码路径逻辑
                     # elif BASE_MASK_DIR_LOCAL and SCENE_MASK_LOCAL_FILENAME_TEMPLATE:
                     #     try:
                     #         scene_mask_fname = SCENE_MASK_LOCAL_FILENAME_TEMPLATE.format(scene_num=scene_num_str)
@@ -288,12 +305,18 @@ class ComfyUITester:
                      self._log_verbose(f"警告: 场景蒙版节点 '{SCENE_MASK_NODE_ID}' 结构不正确 (缺少 inputs 或 image 键)。")
             else:
                  self._log_verbose(f"警告: 场景蒙版节点 ID '{SCENE_MASK_NODE_ID}' 已配置，但在工作流中未找到。")
-        
+        else:
+            self._log_verbose("提示: SCENE_MASK_NODE_ID 未配置或设为 None，跳过场景 Mask 处理。")
+
         # --- 更新字幕 Mask (从本地上传) ---
         if SUBTITLE_MASK_NODE_ID:
             if SUBTITLE_MASK_NODE_ID in modified_workflow:
                 if "inputs" in modified_workflow[SUBTITLE_MASK_NODE_ID] and "image" in modified_workflow[SUBTITLE_MASK_NODE_ID]["inputs"]:
+                    # 当前激活的是硬编码路径逻辑
                     modified_workflow[SUBTITLE_MASK_NODE_ID]["inputs"]["image"] = "/data/comfyui/input/wuji/mask/subtitle-mask.png"
+                    self._log_verbose(f"    字幕Mask节点 '{SUBTITLE_MASK_NODE_ID}' 更新为硬编码路径: '/data/comfyui/input/wuji/mask/subtitle-mask.png'")
+
+                    # 以下是原先注释掉的本地上传逻辑
                     # if BASE_MASK_DIR_LOCAL and SUBTITLE_MASK_LOCAL_FILENAME:
                     #     local_subtitle_mask_path = os.path.join(BASE_MASK_DIR_LOCAL, SUBTITLE_MASK_LOCAL_FILENAME)
                     #     uploaded_subtitle_mask_ref = self._upload_single_image(
@@ -422,7 +445,6 @@ class ComfyUITester:
         for node_id, node_output in outputs.items():
             if isinstance(node_output, dict) and 'images' in node_output and isinstance(node_output['images'], list):
                 for img_data in node_output['images']:
-                    # 我们只关心类型为 'output' 的图像，这些是最终结果
                     if isinstance(img_data, dict) and img_data.get('type') == 'output':
                         if 'filename' in img_data:
                             images_to_download.append(img_data)
@@ -436,20 +458,19 @@ class ComfyUITester:
         self._log_verbose(f"    准备从服务器下载 {len(images_to_download)} 张 'output' 图像 (提示ID: {prompt_id})")
         
         original_base, original_ext = os.path.splitext(original_image_basename)
-        if not original_ext: original_ext = '.png' # 默认扩展名
+        if not original_ext: original_ext = '.png' 
         elif not original_ext.startswith('.'): original_ext = '.' + original_ext
 
         timestamp_str = datetime.now().strftime("%Y%m%d-%H%M%S-%f")[:-3]
 
         for idx, image_data in enumerate(images_to_download):
             server_filename = image_data.get('filename')
-            subfolder = image_data.get('subfolder', '') # ComfyUI output subfolder
+            subfolder = image_data.get('subfolder', '') 
             if not server_filename:
                 continue
 
-            # 构建本地保存文件名
             name_part_to_use = original_base
-            if len(images_to_download) > 1: # 如果有多个输出图像，添加索引
+            if len(images_to_download) > 1: 
                 name_part_to_use = f"{original_base}_output_{idx}"
             
             if current_iteration_num > 1:
@@ -459,7 +480,6 @@ class ComfyUITester:
             
             local_path = os.path.join(output_dir_for_run, final_local_filename)
 
-            # 准备下载URL
             url_params = {'filename': server_filename, 'type': 'output'}
             if subfolder:
                 url_params['subfolder'] = subfolder
@@ -471,7 +491,7 @@ class ComfyUITester:
                 response = requests.get(view_url, params=url_params, stream=True, timeout=180)
                 response.raise_for_status()
                 
-                os.makedirs(os.path.dirname(local_path), exist_ok=True) # 确保目录存在
+                os.makedirs(os.path.dirname(local_path), exist_ok=True) 
                 with open(local_path, 'wb') as f:
                     for chunk in response.iter_content(chunk_size=8192):
                         f.write(chunk)
@@ -486,7 +506,7 @@ class ComfyUITester:
             except Exception as e:
                 self._log_error(f"下载或保存图像 '{server_filename}' 时出错: {type(e).__name__}: {e}")
         
-        if not downloaded_files_paths and images_to_download: # 如果有图像要下载但一个都没成功
+        if not downloaded_files_paths and images_to_download: 
              self._log_verbose(f"  警告：找到 {len(images_to_download)} 张图像数据但未能下载任何图像 ({original_image_basename})。")
         time.sleep(2)
         return downloaded_files_paths
@@ -495,10 +515,10 @@ class ComfyUITester:
         """通过轮询 /history 端点等待 ComfyUI 任务完成。"""
         if not prompt_id: return False, None, 0.0
         
-        log_prefix_short = f"提示ID:{prompt_id[:6]}" # 简化日志中的ID显示
+        log_prefix_short = f"提示ID:{prompt_id[:6]}" 
         start_time_wait = time.time()
         last_log_time = 0
-        server_ip_short = self.server_address.split('//')[-1].split(':')[0] # 提取服务器IP用于日志
+        server_ip_short = self.server_address.split('//')[-1].split(':')[0] 
 
         self._log_verbose(f"{log_prefix_short} 监视服务器 {server_ip_short} 上的任务...")
 
@@ -516,42 +536,41 @@ class ComfyUITester:
                 status_obj = history_response[prompt_id]
                 status_info = status_obj.get("status", {})
                 status_str = status_info.get("status_str", "未知状态")
-                exec_completed = status_info.get("completed", False) # 检查任务是否真的完成
+                exec_completed = status_info.get("completed", False) 
                 outputs_exist = bool(status_obj.get("outputs"))
                 q_rem = status_info.get("exec_info", {}).get("queue_remaining", "N/A")
 
-                if self.verbose and (current_loop_time - last_log_time >= 15.0 or status_str not in ['running', 'pending']): # 每15秒或状态变化时记录
+                if self.verbose and (current_loop_time - last_log_time >= 15.0 or status_str not in ['running', 'pending']): 
                     self._log_verbose(f"    [{log_prefix_short} on Srv {server_ip_short}] 状态: {status_str}, 完成标志: {exec_completed}, 队列: {q_rem}, 等待: {elapsed_wait:.0f}s")
                     last_log_time = current_loop_time
                 
-                # 当 ComfyUI API 指示任务已完成 (completed: true)
                 if exec_completed:
-                    if status_str == 'success': # 且状态是成功
-                        if not outputs_exist: # 检查是否有输出数据
+                    if status_str == 'success': 
+                        if not outputs_exist: 
                              self._log_error(f"  任务 {log_prefix_short} (Srv {server_ip_short}) 状态为 'success' 且完成标志为 True，但历史记录缺少 'outputs'。 API 等待: {elapsed_wait:.2f}秒")
-                             return False, history_response, elapsed_wait # 视为不完全成功
+                             return False, history_response, elapsed_wait 
                         else:
                             self._log_info(f"  任务 {log_prefix_short} (Srv {server_ip_short}) 成功完成。状态: {status_str}, API 等待: {elapsed_wait:.2f}秒")
                             return True, history_response, elapsed_wait
-                    else: # 如果完成但状态不是 'success' (例如 'error', 'user_interrupted')
+                    else: 
                         self._log_error(f"  任务 {log_prefix_short} (Srv {server_ip_short}) 完成但状态为失败/错误。状态: {status_str}, API 等待: {elapsed_wait:.2f}秒")
-                        if outputs_exist: # 检查是否有错误详情
+                        if outputs_exist: 
                             for node_id_err, node_output in status_obj["outputs"].items():
                                 if isinstance(node_output, dict) and 'errors' in node_output:
                                     self._log_error(f"    {log_prefix_short} 节点 {node_id_err} 报告错误: {node_output['errors']}")
                         return False, history_response, elapsed_wait
-            else: # history_response 为 None 或不包含 prompt_id (可能网络问题或任务刚提交)
-                if self.verbose and (current_loop_time - last_log_time >= 10.0): # 每10秒轮询失败时记录
+            else: 
+                if self.verbose and (current_loop_time - last_log_time >= 10.0): 
                     self._log_verbose(f"    [{log_prefix_short} on Srv {server_ip_short}] API 轮询: 无法获取历史。已等待:{elapsed_wait:.1f}s")
                     last_log_time = current_loop_time
             
-            time.sleep(1.0) # 轮询间隔
+            time.sleep(1.0) 
 
     def process_image(self, main_image_path: str, original_image_basename: str,
                       current_iteration_num: int, shot_folder_name: str, scene_num_str: str) -> tuple[list[str], float]:
         """
-        处理单个图像的完整流程 (包括从本地上传Mask):
-        加载 WF -> 上传主图像 -> 生成 Prompt -> 更新 WF (上传并设置Masks) -> 提交 -> 等待 -> 下载。
+        处理单个图像的完整流程:
+        加载 WF -> (主图像路径已硬编码修改) -> 生成 Prompt -> 更新 WF (Masks路径已硬编码修改) -> 提交 -> 等待 -> 下载。
         返回元组: (下载的图像路径列表, 总任务时长)。
         """
         task_start_time = time.time()
@@ -561,28 +580,25 @@ class ComfyUITester:
         workflow_template = self.load_workflow()
         if not workflow_template:
             return [], time.time() - task_start_time
-        # /data/comfyui/input/wuji/250512/场景1/01
-        # 'data/250511/场景1/01/E028C022.png'
-        # --- 2. 上传主图像 ---
-        print(type(main_image_path))
+        
+        # --- 2. 主图像路径处理 (使用硬编码转换规则) ---
+        # 原上传逻辑: uploaded_main_image_ref = self.upload_main_image(main_image_path)
         uploaded_main_image_ref = main_image_path.replace("data/250511", "/data/comfyui/input/wuji/250512")
-        # uploaded_main_image_ref = self.upload_main_image(main_image_path)
-        # if not uploaded_main_image_ref:
-        #      self._log_error(f"主图像上传失败 for '{original_image_basename}'. 中止处理。")
-        #      return [], time.time() - task_start_time
+        self._log_verbose(f"    主图像服务器路径设置为: '{uploaded_main_image_ref}' (基于本地: '{main_image_path}')")
+
 
         # --- 3. 生成 AI 提示词 (可选) ---
         anime_prompt = generate_anime_prompt_wrapper(
             main_image_path, self._log_info, self._log_error, self._log_verbose
         )
 
-        # --- 4. 更新工作流 (包括上传本地Mask并设置) ---
+        # --- 4. 更新工作流 (Masks路径已硬编码在update_workflow中) ---
         modified_workflow = self.update_workflow(
             workflow=workflow_template,
             main_image_ref=uploaded_main_image_ref,
             generated_prompt=anime_prompt,
             shot_folder_name=shot_folder_name,
-            scene_num_str=scene_num_str
+            scene_num_str=scene_num_str 
         )
         if not modified_workflow:
             self._log_error(f"更新工作流失败 for '{original_image_basename}'. 中止处理。")
@@ -592,7 +608,7 @@ class ComfyUITester:
         prompt_response = self.send_prompt(modified_workflow)
         if not prompt_response or 'prompt_id' not in prompt_response:
             self._log_error(f"提交工作流失败 for '{original_image_basename}'. 中止处理。")
-            if prompt_response and 'node_errors' in prompt_response: # ComfyUI 可能在提交时就返回节点错误
+            if prompt_response and 'node_errors' in prompt_response: 
                  self._log_error(f"  服务器报告节点错误: {prompt_response['node_errors']}")
             return [], time.time() - task_start_time
         prompt_id = prompt_response['prompt_id']
@@ -600,7 +616,7 @@ class ComfyUITester:
 
         # --- 6. 等待任务完成 ---
         completed, final_history, time_spent_waiting = self.wait_for_completion(prompt_id)
-        task_duration = time.time() - task_start_time # 总任务时长
+        task_duration = time.time() - task_start_time 
         time.sleep(0.5)
         # --- 7. 处理结果 ---
         if completed and final_history:
@@ -612,11 +628,9 @@ class ComfyUITester:
                 self._log_info(f"成功完成并下载 {len(downloaded_images)} 张图片 for '{original_image_basename}'。总耗时: {task_duration:.2f}s。")
                 return downloaded_images, task_duration
             else:
-                # 即使工作流成功，下载也可能失败
                 self._log_error(f"工作流成功但下载图片失败 (提示ID: {prompt_id}, {original_image_basename})。总耗时: {task_duration:.2f}s。")
                 return [], task_duration
         else:
-            # 任务失败或超时
             self._log_error(f"处理 '{original_image_basename}' 失败/超时 (提示ID: {prompt_id or 'N/A'})。总耗时: {task_duration:.2f}s (API 等待 {time_spent_waiting:.2f}s)。")
             return [], task_duration
 
@@ -639,11 +653,9 @@ if __name__ == "__main__":
         print(f"将使用基础工作流: {base_workflow_full_path}")
 
     # --- 打印 Mask 配置信息 ---
-    print("\nMask 配置 (将从本地上传):")
-    if not os.path.isdir(BASE_MASK_DIR_LOCAL):
-        print(f"  警告: 本地 Mask 基础目录 '{BASE_MASK_DIR_LOCAL}' 不存在。Mask 可能无法上传。")
-    
-    if SCENE_MASK_NODE_ID and SCENE_MASK_LOCAL_FILENAME_TEMPLATE and BASE_MASK_DIR_LOCAL:
+    print("\nMask 配置:")
+    # 对于 SCENE_MASK_NODE_ID，由于已设为 None，将打印 "不处理" 的信息
+    if SCENE_MASK_NODE_ID and SCENE_MASK_LOCAL_FILENAME_TEMPLATE and BASE_MASK_DIR_LOCAL: # SCENE_MASK_NODE_ID is None, so this won't run
         print(f"  - 场景 Mask (节点 {SCENE_MASK_NODE_ID}):")
         print(f"    - 将尝试从本地目录 '{BASE_MASK_DIR_LOCAL}' 上传。")
         print(f"    - 使用文件名模板 '{SCENE_MASK_LOCAL_FILENAME_TEMPLATE}' (例如: '{os.path.join(BASE_MASK_DIR_LOCAL, SCENE_MASK_LOCAL_FILENAME_TEMPLATE.format(scene_num='X'))}')。")
@@ -653,39 +665,42 @@ if __name__ == "__main__":
             print(f"    - 上传到服务器 ComfyUI input 根目录。")
         if SHOTS_TO_SKIP_SCENE_MASK:
              print(f"    - 将跳过镜头 {SHOTS_TO_SKIP_SCENE_MASK} 的场景 Mask 上传和设置。")
-    elif SCENE_MASK_NODE_ID:
+    elif SCENE_MASK_NODE_ID: # SCENE_MASK_NODE_ID is None, so this won't run
         print(f"  - 场景 Mask (节点 {SCENE_MASK_NODE_ID}): 本地场景 Mask 路径或模板未完全配置，将保留工作流默认值。")
-    else:
-        print("  - 场景 Mask: SCENE_MASK_NODE_ID 未配置，不处理。")
+    else: # This will run because SCENE_MASK_NODE_ID is None
+        print("  - 场景 Mask: SCENE_MASK_NODE_ID 未配置 (设为 None)，不处理场景 Mask。")
 
-    if SUBTITLE_MASK_NODE_ID and SUBTITLE_MASK_LOCAL_FILENAME and BASE_MASK_DIR_LOCAL:
-        local_subtitle_path_example = os.path.join(BASE_MASK_DIR_LOCAL, SUBTITLE_MASK_LOCAL_FILENAME)
+    # 字幕 Mask 逻辑（使用硬编码路径）
+    if SUBTITLE_MASK_NODE_ID:
         print(f"  - 字幕 Mask (节点 {SUBTITLE_MASK_NODE_ID}):")
-        print(f"    - 将尝试从本地文件 '{local_subtitle_path_example}' 上传。")
-        if MASK_UPLOAD_SUBFOLDER_ON_SERVER:
-            print(f"    - 上传到服务器 ComfyUI input 子目录: '{MASK_UPLOAD_SUBFOLDER_ON_SERVER}'。")
-        else:
-            print(f"    - 上传到服务器 ComfyUI input 根目录。")
-    elif SUBTITLE_MASK_NODE_ID:
-         print(f"  - 字幕 Mask (节点 {SUBTITLE_MASK_NODE_ID}): 本地字幕 Mask 路径或文件名未完全配置，将保留工作流默认值。")
+        print(f"    - 将在工作流中硬编码字幕 Mask 路径为: '/data/comfyui/input/wuji/mask/subtitle-mask.png'")
+        # 以下注释掉的是原本地上传的描述
+        # if SUBTITLE_MASK_LOCAL_FILENAME and BASE_MASK_DIR_LOCAL:
+        #    local_subtitle_path_example = os.path.join(BASE_MASK_DIR_LOCAL, SUBTITLE_MASK_LOCAL_FILENAME)
+        #    print(f"    - 将尝试从本地文件 '{local_subtitle_path_example}' 上传。")
+        #    if MASK_UPLOAD_SUBFOLDER_ON_SERVER:
+        #        print(f"    - 上传到服务器 ComfyUI input 子目录: '{MASK_UPLOAD_SUBFOLDER_ON_SERVER}'。")
+        #    else:
+        #        print(f"    - 上传到服务器 ComfyUI input 根目录。")
+        # else:
+        #    print(f"    - 本地字幕 Mask 路径或文件名未完全配置，将保留工作流默认值或硬编码路径。")
     else:
          print("  - 字幕 Mask: SUBTITLE_MASK_NODE_ID 未配置，不处理。")
-    print("  (请确保上述本地 Mask 文件存在，脚本才能成功上传它们)")
+    
+    print("  (注意: 主图像和Mask路径当前在脚本中是基于特定规则进行硬编码转换或直接设置的)")
 
 
     # --- 准备任务列表 ---
     overall_start_time = time.time()
-    # Task list format: (iter_num, scene_name, shot_name, img_name, scene_num_str)
     tasks_to_run = []
 
     print("\n程序开始：扫描输入目录并准备任务列表...")
     total_files_scanned = 0
-    total_images_found_in_scan = 0 # 用于区分扫描找到的图像和总任务数
+    total_images_found_in_scan = 0 
     scenes_found = set()
     shots_found = set()
 
     try:
-        # 扫描只进行一次，然后基于扫描结果和 NUM_ITERATIONS 构建总任务列表
         scene_folders_calc = sorted([
             d for d in os.listdir(BASE_INPUT_DIR)
             if os.path.isdir(os.path.join(BASE_INPUT_DIR, d)) and d.startswith("场景")
@@ -696,12 +711,12 @@ if __name__ == "__main__":
         for scene_folder_name_calc in scene_folders_calc:
             scenes_found.add(scene_folder_name_calc)
             scene_full_path_calc = os.path.join(BASE_INPUT_DIR, scene_folder_name_calc)
-            scene_num_match_calc = re.search(r'\d+', scene_folder_name_calc) # 提取场景号
-            scene_num_str_calc = scene_num_match_calc.group(0) if scene_num_match_calc else scene_folder_name_calc # 回退到完整名
+            scene_num_match_calc = re.search(r'\d+', scene_folder_name_calc) 
+            scene_num_str_calc = scene_num_match_calc.group(0) if scene_num_match_calc else scene_folder_name_calc 
 
             shot_folders_calc = sorted([
                 d for d in os.listdir(scene_full_path_calc)
-                if os.path.isdir(os.path.join(scene_full_path_calc, d)) and d.isdigit() # 确保是数字命名的镜头文件夹
+                if os.path.isdir(os.path.join(scene_full_path_calc, d)) and d.isdigit() 
             ])
             if not shot_folders_calc and VERBOSE_LOGGING:
                 print(f"信息 [扫描]: 在 '{scene_full_path_calc}' 中未找到数字命名的镜头文件夹。")
@@ -727,14 +742,13 @@ if __name__ == "__main__":
 
                 for image_filename_calc in image_files_calc:
                     total_images_found_in_scan += 1
-                    # 为每次迭代都添加任务
                     for iter_num_calc in range(1, NUM_ITERATIONS + 1):
                         tasks_to_run.append((
                             iter_num_calc,
                             scene_folder_name_calc,
                             shot_folder_name_calc,
                             image_filename_calc,
-                            scene_num_str_calc, # 传递提取的场景号
+                            scene_num_str_calc, 
                         ))
     except FileNotFoundError:
         print(f"严重错误: 输入目录 '{BASE_INPUT_DIR}' 未找到。程序将退出。")
@@ -746,7 +760,7 @@ if __name__ == "__main__":
     total_tasks_to_process = len(tasks_to_run)
     print(f"扫描完成。找到 {len(scenes_found)} 个场景, {len(shots_found)} 个镜头。")
     print(f"总共扫描文件数 (所有类型): {total_files_scanned}")
-    print(f"总共找到不同图像文件数 (未计迭代): {total_images_found_in_scan}") # 单次扫描的图像数
+    print(f"总共找到不同图像文件数 (未计迭代): {total_images_found_in_scan}") 
     print(f"总迭代次数: {NUM_ITERATIONS}")
 
     if total_tasks_to_process == 0:
@@ -767,7 +781,7 @@ if __name__ == "__main__":
     tasks_succeeded_count = 0
     tasks_failed_count = 0
     individual_task_durations = []
-    futures_map = {} # 用于在任务完成时追溯其元数据
+    futures_map = {} 
     print(f"\n--- 准备提交 {total_tasks_to_process} 个任务到线程池 ---")
 
     # --- 线程池并发执行 ---
@@ -775,13 +789,12 @@ if __name__ == "__main__":
         # --- 任务提交循环 ---
         for i, (iter_num, scene_folder_name, shot_folder_name, image_filename, scene_num_str) in enumerate(tasks_to_run):
             
-            current_server_ip = SERVER_IPS[i % NUM_WORKERS] # 轮询服务器
+            current_server_ip = SERVER_IPS[i % NUM_WORKERS] 
             scene_full_path = os.path.join(BASE_INPUT_DIR, scene_folder_name)
             shot_images_dir = os.path.join(scene_full_path, shot_folder_name)
-            full_image_path = os.path.join(shot_images_dir, image_filename) # 主图的本地路径
+            full_image_path = os.path.join(shot_images_dir, image_filename) 
 
-            # 为日志创建上下文信息
-            server_id_for_log = current_server_ip.split('//')[-1].split('.')[0] # 简短的服务器标识
+            server_id_for_log = current_server_ip.split('//')[-1].split('.')[0] 
             context_log = f"任务 {i+1}/{total_tasks_to_process} Srv{server_id_for_log} It{iter_num} Sc{scene_num_str}-Sh{shot_folder_name}"
 
             tester = ComfyUITester(
@@ -792,17 +805,15 @@ if __name__ == "__main__":
                 verbose=VERBOSE_LOGGING
             )
 
-            # --- 提交 process_image 方法到执行器 ---
             future = executor.submit(
                 tester.process_image,
-                # process_image 的参数:
                 main_image_path=full_image_path,
                 original_image_basename=image_filename,
                 current_iteration_num=iter_num,
                 shot_folder_name=shot_folder_name,
-                scene_num_str=scene_num_str # 传递场景号用于Mask处理
+                scene_num_str=scene_num_str 
             )
-            futures_map[future] = (image_filename, context_log, shot_folder_name) # 存储任务元数据
+            futures_map[future] = (image_filename, context_log, shot_folder_name) 
 
             if DELAY_BETWEEN_SUBMISSIONS > 0:
                 time.sleep(DELAY_BETWEEN_SUBMISSIONS)
@@ -810,38 +821,36 @@ if __name__ == "__main__":
         # --- 进度报告和结果收集 ---
         tqdm.write(f"\n所有 {total_tasks_to_process} 个任务已提交。开始处理并等待完成...\n")
 
-        # 使用 tqdm 包装 as_completed 来显示进度条
         for future in tqdm(as_completed(futures_map), 
                             total=total_tasks_to_process, 
                             desc="处理图像", unit="个任务", 
-                            ncols=120 if sys.stdout.isatty() else None, # 调整进度条宽度
-                            dynamic_ncols=True, file=sys.stdout, # 动态调整宽度，输出到标准输出
-                            bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}{postfix}]' # 自定义格式
+                            ncols=120 if sys.stdout.isatty() else None, 
+                            dynamic_ncols=True, file=sys.stdout, 
+                            bar_format='{l_bar}{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}, {rate_fmt}{postfix}]' 
                            ):
             
-            img_fname, ctx_log, _ = futures_map[future] # 从map中取回任务信息
+            img_fname, ctx_log, _ = futures_map[future] 
             tasks_completed_count += 1
 
             task_succeeded = False
             current_task_duration = 0.0
 
             try:
-                processed_results, task_duration = future.result() # 获取任务结果
+                processed_results, task_duration = future.result() 
                 current_task_duration = task_duration
-                if isinstance(processed_results, list) and len(processed_results) > 0: # 成功条件：返回了下载文件列表
+                if isinstance(processed_results, list) and len(processed_results) > 0: 
                     tasks_succeeded_count += 1
                     individual_task_durations.append(task_duration)
                     task_succeeded = True
                 else:
                     tasks_failed_count += 1
-            except CancelledError: # 如果任务被取消 (不常见，除非显式取消)
+            except CancelledError: 
                 tasks_failed_count += 1
                 tqdm.write(f"错误 [主循环]: 任务 {ctx_log} (图像: {img_fname}) 被工作线程取消。")
-            except Exception as e: # 捕获 process_image 中未处理的异常
+            except Exception as e: 
                 tasks_failed_count += 1
                 tqdm.write(f"严重错误 [主循环]: 获取任务 {ctx_log} (图像: {img_fname}) 结果时出错: {type(e).__name__}: {e}")
 
-            # 更新并打印实时进度摘要
             current_elapsed_script_time = time.time() - overall_start_time
             avg_speed_successful = tasks_succeeded_count / current_elapsed_script_time if current_elapsed_script_time > 0 and tasks_succeeded_count > 0 else 0.0
             
@@ -857,21 +866,32 @@ if __name__ == "__main__":
                 f"已运行: {time.strftime('%H:%M:%S', time.gmtime(current_elapsed_script_time))}. "
                 f"平均成功速度: {avg_speed_str} 任务/秒.{last_task_duration_info}"
             )
-            tqdm.write(progress_summary) # 使用 tqdm.write 避免干扰进度条
+            tqdm.write(progress_summary) 
 
     # --- 最终总结 ---
     overall_end_time = time.time()
     total_script_duration_seconds = overall_end_time - overall_start_time
 
-    print("\n") # 空行以分隔进度条和最终总结
+    print("\n") 
     print(f"{'='*25} 所有处理已完成 {'='*25}")
     print(f"总迭代轮数: {NUM_ITERATIONS}")
     print(f"使用基础工作流: {BASE_WORKFLOW_FILENAME}")
     print(f"LoRA 节点 '{LORA_NODE_ID}' 已根据镜头动态调整。")
+    
     # 最终 Mask 总结
-    if SCENE_MASK_NODE_ID: print(f"已尝试在节点 {SCENE_MASK_NODE_ID} 中设置场景 Mask (从本地 '{BASE_MASK_DIR_LOCAL}/{SCENE_MASK_LOCAL_FILENAME_TEMPLATE}' 上传, 跳过: {SHOTS_TO_SKIP_SCENE_MASK if SHOTS_TO_SKIP_SCENE_MASK else '无'})")
-    if SUBTITLE_MASK_NODE_ID: print(f"已尝试在节点 {SUBTITLE_MASK_NODE_ID} 中设置字幕 Mask (从本地 '{BASE_MASK_DIR_LOCAL}/{SUBTITLE_MASK_LOCAL_FILENAME}' 上传)")
-    if MASK_UPLOAD_SUBFOLDER_ON_SERVER: print(f"Mask 文件上传到服务器子目录: '{MASK_UPLOAD_SUBFOLDER_ON_SERVER}'")
+    if SCENE_MASK_NODE_ID: # This will be false
+        print(f"已尝试在节点 {SCENE_MASK_NODE_ID} 中设置场景 Mask (从本地 '{BASE_MASK_DIR_LOCAL}/{SCENE_MASK_LOCAL_FILENAME_TEMPLATE}' 上传, 跳过: {SHOTS_TO_SKIP_SCENE_MASK if SHOTS_TO_SKIP_SCENE_MASK else '无'})")
+    else:
+        print(f"场景 Mask: SCENE_MASK_NODE_ID 未配置 (设为 None)，未处理场景 Mask。")
+        
+    if SUBTITLE_MASK_NODE_ID: 
+        print(f"已尝试在节点 {SUBTITLE_MASK_NODE_ID} 中设置字幕 Mask (使用硬编码路径 '/data/comfyui/input/wuji/mask/subtitle-mask.png')")
+    
+    # MASK_UPLOAD_SUBFOLDER_ON_SERVER 仅在实际发生上传时相关，当前硬编码路径逻辑不直接使用它。
+    # 但如果未来恢复上传，此配置项依然有用。
+    if MASK_UPLOAD_SUBFOLDER_ON_SERVER and (False): # (False) placeholder, as no mask uploads are active
+         print(f"Mask 文件 (若通过脚本上传) 会尝试上传到服务器子目录: '{MASK_UPLOAD_SUBFOLDER_ON_SERVER}'")
+
 
     print("-" * 60)
     print(f"计划处理的任务总数: {total_tasks_to_process}")
@@ -883,7 +903,7 @@ if __name__ == "__main__":
          print(f"总体成功率 (基于计划任务): {success_rate:.2f}%")
     else: print("未计划任何任务。")
 
-    if individual_task_durations: # 只有成功任务才会计入平均时间
+    if individual_task_durations: 
         avg_task_duration = sum(individual_task_durations) / len(individual_task_durations)
         print(f"单个成功任务的平均处理时间: {avg_task_duration:.2f} 秒")
     elif tasks_succeeded_count == 0 and total_tasks_to_process > 0:
@@ -896,5 +916,3 @@ if __name__ == "__main__":
     print(f"脚本总执行时间: {time.strftime('%H:%M:%S', time.gmtime(total_script_duration_seconds))} ({total_script_duration_seconds:.2f} 秒)")
     print(f"所有成功生成的图像已保存到: {os.path.abspath(OUTPUT_FOLDER)}")
     print(f"{'='*60}")
-
-# --- END OF FILE comfyui_redrawer_0512_local_mask_upload.py ---
