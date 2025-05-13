@@ -60,6 +60,10 @@
       "sampler_name": "euler",
       "scheduler": "simple",
       "denoise": 0.6000000000000001,
+      "model": [
+        "12",
+        0
+      ],
       "positive": [
         "124",
         0
@@ -78,34 +82,15 @@
       "title": "K采样器"
     }
   },
-  "98": {
-    "inputs": {
-      "inputcount": 3,
-      "string_1": [
-        "146",
-        0
-      ],
-      "string_2": [
-        "216",
-        0
-      ],
-      "delimiter": " ",
-      "return_list": false,
-      "string_3": [
-        "215",
-        0
-      ]
-    },
-    "class_type": "JoinStringMulti",
-    "_meta": {
-      "title": "合并字符串（多重）"
-    }
-  },
   "99": {
     "inputs": {
       "text": [
-        "98",
+        "221",
         0
+      ],
+      "clip": [
+        "12",
+        1
       ]
     },
     "class_type": "CLIPTextEncode",
@@ -143,6 +128,10 @@
       "samples": [
         "78",
         0
+      ],
+      "vae": [
+        "210",
+        2
       ]
     },
     "class_type": "VAEDecode",
@@ -203,6 +192,10 @@
         "114",
         0
       ],
+      "vae": [
+        "210",
+        2
+      ],
       "image": [
         "122",
         0
@@ -251,6 +244,10 @@
       "pixels": [
         "213",
         0
+      ],
+      "vae": [
+        "210",
+        2
       ]
     },
     "class_type": "VAEEncode",
@@ -423,6 +420,40 @@
     "class_type": "Text Multiline",
     "_meta": {
       "title": "多行文本"
+    }
+  },
+  "220": {
+    "inputs": {
+      "string1": [
+        "146",
+        0
+      ],
+      "string2": [
+        "215",
+        0
+      ],
+      "delimiter": " "
+    },
+    "class_type": "JoinStrings",
+    "_meta": {
+      "title": "合并字符串"
+    }
+  },
+  "221": {
+    "inputs": {
+      "string1": [
+        "220",
+        0
+      ],
+      "string2": [
+        "216",
+        0
+      ],
+      "delimiter": " "
+    },
+    "class_type": "JoinStrings",
+    "_meta": {
+      "title": "合并字符串"
     }
   }
 }

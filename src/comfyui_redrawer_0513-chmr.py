@@ -29,17 +29,17 @@ except ImportError:
 # --------------- 配置参数 ---------------
 SERVER_IPS = [
     "http://comfyui-demo.lingjingai.cn",
-    # "http://comfyui-demo2.lingjingai.cn",
-    # "http://comfyui-demo3.lingjingai.cn",
-    # "http://comfyui-demo4.lingjingai.cn",
-    # "http://comfyui-demo5.lingjingai.cn",
-    # "http://comfyui-demo6.lingjingai.cn",
-    # "http://comfyui-demo7.lingjingai.cn",
-    # "http://comfyui-demo8.lingjingai.cn",
-    # "http://comfyui-demo9.lingjingai.cn",
-    # "http://comfyui-demo10.lingjingai.cn",
-    # "http://comfyui-demo11.lingjingai.cn",
-    # "http://comfyui-demo12.lingjingai.cn",
+    "http://comfyui-demo2.lingjingai.cn",
+    "http://comfyui-demo3.lingjingai.cn",
+    "http://comfyui-demo4.lingjingai.cn",
+    "http://comfyui-demo5.lingjingai.cn",
+    "http://comfyui-demo6.lingjingai.cn",
+    "http://comfyui-demo7.lingjingai.cn",
+    "http://comfyui-demo8.lingjingai.cn",
+    "http://comfyui-demo9.lingjingai.cn",
+    "http://comfyui-demo10.lingjingai.cn",
+    "http://comfyui-demo11.lingjingai.cn",
+    "http://comfyui-demo12.lingjingai.cn",
     # 根据需要添加其他服务器IP
 ]
 NUM_WORKERS = len(SERVER_IPS) # 并发工作线程数 = 服务器数量
@@ -565,7 +565,9 @@ class ComfyUITester:
             return [], time.time() - task_start_time
         
         # --- 2. 主图像路径处理 (使用硬编码转换规则) ---
-        uploaded_main_image_ref = main_image_path.replace("data/250511", "/data/comfyui/input/chmr/250513")
+        # 原始问题行: uploaded_main_image_ref = main_image_path.replace("data/250511", "/data/comfyui/input/chmr/250513")
+        # 修改后的行: 将本地的 BASE_INPUT_DIR (例如 "data/250511") 替换为服务器上图像存放的基础路径 (例如 "/data/comfyui/input/chmr")
+        uploaded_main_image_ref = main_image_path.replace(BASE_INPUT_DIR, "/data/comfyui/input/chmr")
         self._log_verbose(f"    主图像服务器路径设置为: '{uploaded_main_image_ref}' (基于本地: '{main_image_path}')")
 
 
