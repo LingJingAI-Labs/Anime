@@ -1,11 +1,14 @@
+# --- START OF FILE character_org_modified_concurrent.py ---
+
 import os
 import base64
 import argparse
 import requests
 import json
-import shutil
+import shutil # 用于文件复制
 from pathlib import Path
-import time # For potential rate limiting
+import time # 仍然保留，以防某些特定情况下需要
+import concurrent.futures # 用于并发处理
 
 # 从配置文件导入设置
 try:
@@ -27,10 +30,10 @@ CHARACTER_MAPPING = {
     "12": "售货员",
     "13": "王大妈",
     "15": "周雪",
-    "16": "刘大爷", 
+    "16": "刘大爷",
 }
 
-# --- Helper Function: Encode Image to Base64 ---
+# --- 辅助函数：将图像编码为 Base64 ---
 def encode_image_to_base64(image_path: str) -> str | None:
     """将图像文件编码为 Base64 字符串"""
     try:
@@ -43,27 +46,32 @@ def encode_image_to_base64(image_path: str) -> str | None:
         print(f"错误：读取或编码图像 '{image_path}' 时出错: {e}")
         return None
 
-# --- Core Function: Get Character Info via Aihubmix ---
-def get_character_info_from_image(
+# --- 核心函数：通过 Aihubmix 获取角色代码 ---
+def get_character_codes_from_image(
     scene_image_path: str,
     reference_image_path: str,
     current_model_id: str,
     max_tokens: int,
-    timeout: int
-) -> dict | None:
+    timeout: int,
+    character_mapping_for_prompt: dict,
+    image_display_name: str # 用于日志记录
+) -> list[str] | None:
     """
-    使用 Aihubmix API 分析场景图像，并根据参考图像识别角色，返回JSON格式的角色信息。
+    使用 Aihubmix API 分析场景图像，并根据参考图像识别角色，
+    返回这些角色在 CHARACTER_MAPPING 中对应的代码列表。
     """
     if not cfg.AIHUBMIX_API_KEY:
-        print("错误：AIHUBMIX_API_KEY 未在 config.py 中配置或环境变量未设置。")
+        print(f"错误 ({image_display_name})：AIHUBMIX_API_KEY 未在 config.py 中配置或环境变量未设置。")
         return None
 
     base64_scene_image = encode_image_to_base64(scene_image_path)
     if not base64_scene_image:
+        print(f"错误 ({image_display_name})：编码场景图失败。")
         return None
 
     base64_reference_image = encode_image_to_base64(reference_image_path)
     if not base64_reference_image:
+        print(f"错误 ({image_display_name})：编码参考图失败。")
         return None
 
     scene_image_url = f"data:image/jpeg;base64,{base64_scene_image}"
@@ -74,30 +82,23 @@ def get_character_info_from_image(
         "Content-Type": "application/json",
     }
 
+    mapping_prompt_str = "请参考以下角色代码和名称的映射：\n"
+    for code, name in character_mapping_for_prompt.items():
+        if code != "00":
+            mapping_prompt_str += f'- 代码 "{code}": 角色名 "{name}"\n'
+
     user_prompt = (
-        "你将收到两张图片：第一张是“角色参考图”，其中包含多个标记了名字的角色肖像；第二张是“场景图”。\n"
+        "你将收到两张图片：第一张是“角色参考图”，其中可能包含多个已知角色及其名字；第二张是“场景图”。\n"
         "你的任务是：\n"
         "1. 仔细查看“场景图”。\n"
         "2. 根据“角色参考图”中提供的角色信息，识别出“场景图”中出现了哪些角色。\n"
         "3. 注意：角色在“场景图”中可能穿着不同的服装，请主要依据面部特征进行识别。\n"
-        "4. 对于每个在“场景图”中识别出的角色，请指出其在图中的大致位置（只有如下3种位置：'left', 'center', 'right'）。\n"
-        "5. 最终，你必须严格按照以下 JSON 格式输出结果，不要包含任何额外的解释、Markdown标记或说明文字。只输出纯JSON字符串：\n"
-        "{\n"
-        '  "count": <识别到的角色数量 (整数)>,\n'
-        '  "people": [\n'
-        "    {\n"
-        '      "name": "<角色在参考图中的名字 (字符串)>",\n'
-        '      "position": "<角色在场景图中的位置 (字符串)>"\n'
-        "    }\n"
-        "    // ... 如果有更多角色，继续添加对象\n"
-        "  ]\n"
-        "}\n"
-        "如果“场景图”中没有出现“角色参考图”中的任何角色，或者场景图本身为空镜，请输出：\n" # Clarified for empty shot
-        "{\n"
-        '  "count": 0,\n'
-        '  "people": []\n'
-        "}\n"
-        "请确保角色名字与“角色参考图”中的标签完全一致。"
+        f"{mapping_prompt_str}"
+        "4. 根据你在“场景图”中识别出的角色，并对照上面提供的映射关系，返回这些角色对应的代码列表。\n"
+        "5. 最终，你必须严格按照 Python列表 (list of strings) 的格式输出结果。例如： `[\"01\", \"07\"]`。\n"
+        "6. 如果“场景图”中没有出现上述映射中的任何角色，或者场景图本身为空镜，请务必输出：`[\"00\"]`。\n"
+        "7. 不要包含任何额外的解释、Markdown标记或说明文字。只输出纯粹的 Python列表 字符串。\n"
+        "请确保角色名字的识别基于“角色参考图”，然后将这些识别出的名字映射到给定的代码。"
     )
 
     payload_messages = [
@@ -123,7 +124,7 @@ def get_character_info_from_image(
         "max_tokens": max_tokens,
     }
 
-    print(f"正在通过 Aihubmix 使用模型 '{current_model_id}' 分析图像 '{Path(scene_image_path).name}'...")
+    print(f"INFO ({image_display_name}): 正在通过 Aihubmix 使用模型 '{current_model_id}' 分析...")
     api_response_data = None
     try:
         response = requests.post(
@@ -137,294 +138,236 @@ def get_character_info_from_image(
         raw_content = api_response_data.get('choices', [{}])[0].get('message', {}).get('content')
 
         if raw_content:
-            if raw_content.strip().startswith("```json"):
-                raw_content = raw_content.strip()[7:]
-                if raw_content.strip().endswith("```"):
-                    raw_content = raw_content.strip()[:-3]
-            
+            clean_content = raw_content.strip()
+            if clean_content.startswith("```json"):
+                clean_content = clean_content[7:]
+                if clean_content.endswith("```"):
+                    clean_content = clean_content[:-3]
+            elif clean_content.startswith("```python"):
+                clean_content = clean_content[9:]
+                if clean_content.endswith("```"):
+                    clean_content = clean_content[:-3]
+            elif clean_content.startswith("```"):
+                 clean_content = clean_content[3:]
+                 if clean_content.endswith("```"):
+                    clean_content = clean_content[:-3]
+            clean_content = clean_content.strip()
+
             try:
-                response_json_content = json.loads(raw_content.strip())
-                return response_json_content
-            except json.JSONDecodeError as json_err:
-                print(f"错误：API 返回的内容不是有效的 JSON 格式。错误: {json_err}")
-                print(f"API 原始返回内容: {raw_content}")
+                parsed_codes = json.loads(clean_content)
+                if isinstance(parsed_codes, list) and all(isinstance(item, str) for item in parsed_codes):
+                    valid_codes = [code for code in parsed_codes if code in CHARACTER_MAPPING]
+                    if not valid_codes and "00" in parsed_codes:
+                        return ["00"]
+                    if not valid_codes and parsed_codes:
+                         print(f"警告 ({image_display_name})：API返回了代码 {parsed_codes}，但它们不在CHARACTER_MAPPING中。将视为空处理。")
+                         return ["00"]
+                    return valid_codes if valid_codes else ["00"]
+                else:
+                    print(f"错误 ({image_display_name})：API 返回的内容不是预期的代码列表格式。内容: {clean_content}")
+                    return None
+            except json.JSONDecodeError:
+                if clean_content in CHARACTER_MAPPING: # 处理API直接返回单个代码字符串的情况
+                    return [clean_content]
+                print(f"错误 ({image_display_name})：API 返回的内容不是有效的 JSON 列表。内容: {clean_content}")
                 return None
         else:
-            print(f"错误：API 返回了有效响应，但未找到生成的文本。API 响应: {api_response_data}")
+            print(f"错误 ({image_display_name})：API 返回了有效响应，但未找到生成的文本。API 响应: {api_response_data}")
             return None
 
     except requests.exceptions.Timeout:
-        print(f"错误：请求 Aihubmix API 超时（超过 {timeout} 秒）。")
+        print(f"错误 ({image_display_name})：请求 Aihubmix API 超时（超过 {timeout} 秒）。")
         return None
     except requests.exceptions.HTTPError as e:
-        print(f"错误：Aihubmix API 返回 HTTP 错误: {e.response.status_code} {e.response.reason}")
+        print(f"错误 ({image_display_name})：Aihubmix API 返回 HTTP 错误: {e.response.status_code} {e.response.reason}")
         try:
             error_details = e.response.json()
-            print(f"错误详情: {error_details}")
+            print(f"错误详情 ({image_display_name}): {error_details}")
         except json.JSONDecodeError:
-            print(f"无法解析的错误响应体: {e.response.text}")
+            print(f"无法解析的错误响应体 ({image_display_name}): {e.response.text}")
         return None
     except requests.exceptions.RequestException as e:
-        print(f"错误：请求 Aihubmix API 时出错: {e}")
+        print(f"错误 ({image_display_name})：请求 Aihubmix API 时出错: {e}")
         return None
     except (KeyError, IndexError) as e:
-        print(f"错误：解析 Aihubmix API 响应结构时出错: {e}。")
-        print(f"请检查 API 响应是否符合预期结构。API 响应: {api_response_data if api_response_data else 'N/A'}")
+        print(f"错误 ({image_display_name})：解析 Aihubmix API 响应结构时出错: {e}。")
+        print(f"请检查 API 响应是否符合预期结构。API 响应 ({image_display_name}): {api_response_data if api_response_data else 'N/A'}")
         return None
-    except Exception as e:
-        print(f"错误：发生未知错误: {e}")
+    except Exception as e: # pylint: disable=broad-except
+        print(f"错误 ({image_display_name})：发生未知错误: {e}")
         return None
 
-def load_character_map(map_file_path: str | None) -> dict:
-    default_map = getattr(cfg, 'DEFAULT_CHARACTER_MAP', {})
-    if map_file_path:
-        try:
-            with open(map_file_path, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        except FileNotFoundError:
-            print(f"警告：角色映射文件 '{map_file_path}' 未找到，将使用默认映射。")
-        except json.JSONDecodeError:
-            print(f"警告：角色映射文件 '{map_file_path}' 格式错误，将使用默认映射。")
-        except Exception as e:
-            print(f"警告：加载角色映射文件时出错 '{e}'，将使用默认映射。")
-    return default_map
+
+# --- 单个图像处理任务函数 ---
+def process_single_image_task(
+    scene_image_file_path_obj: Path,
+    ref_image_path_str: str,
+    current_model_id: str,
+    max_tokens: int,
+    request_timeout: int,
+    output_base_dir: Path,
+    input_root_path: Path
+):
+    """处理单个图像：API调用、结果解析、文件复制。"""
+    try:
+        relative_image_path = scene_image_file_path_obj.relative_to(input_root_path)
+    except ValueError:
+        relative_image_path = scene_image_file_path_obj.name
+
+    image_display_name = str(relative_image_path) # 用于日志
+    print(f"开始处理图像: {image_display_name}")
+
+    character_codes = get_character_codes_from_image(
+        str(scene_image_file_path_obj),
+        ref_image_path_str,
+        current_model_id,
+        max_tokens,
+        request_timeout,
+        CHARACTER_MAPPING, # 传递完整的映射给API函数
+        image_display_name
+    )
+
+    if character_codes:
+        print(f"结果 ({image_display_name}): 识别角色代码: {character_codes}")
+        copied_count = 0
+        for code in character_codes:
+            if code in CHARACTER_MAPPING:
+                target_character_dir = output_base_dir / code
+                destination_file = target_character_dir / scene_image_file_path_obj.name
+                try:
+                    # 确保目标子目录存在 (理论上已在主函数预创建，但双重检查无害)
+                    target_character_dir.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(str(scene_image_file_path_obj), str(destination_file))
+                    print(f"  ({image_display_name}): 已将图像复制到 '{destination_file}'")
+                    copied_count += 1
+                except Exception as e: # pylint: disable=broad-except
+                    print(f"  错误 ({image_display_name}): 复制图像到 '{destination_file}' 失败: {e}")
+            else:
+                print(f"  警告 ({image_display_name}): API返回了未在CHARACTER_MAPPING定义的代码 '{code}'，跳过复制。")
+        if copied_count == 0 and character_codes != ["00"]: # 如果有有效代码但都复制失败
+             print(f"  警告 ({image_display_name}): 未能成功复制图片到任何目标文件夹。")
+
+    else:
+        print(f"结果 ({image_display_name}): 未能从API获取角色代码或解析响应。该图片将不会被复制。")
+
+    return image_display_name, True if character_codes else False # 返回图片名和处理状态
+
 
 # --- Main Execution Block ---
-# --- START OF if __name__ == "__main__": BLOCK ---
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="使用 Aihubmix API 分析图像中的角色，生成JSON元数据，并根据角色整理文件。"
+        description="使用 Aihubmix API 并发分析图像中的角色，并将图片复制到按角色代码分类的子文件夹中。"
     )
     parser.add_argument(
         "--input_dir",
         type=str,
-        default="data/initial_frames/",
-        help="包含需要分析的场景图像的文件夹路径。"
+        default="data/250514-chmr/",
+        help="包含各剧集源文件夹（如“9集”、“10集”）的根目录路径。脚本会排除名为“场景1”的子文件夹作为输入源。"
     )
     parser.add_argument(
         "--ref_image",
         type=str,
-        default="data/char-ref.jpeg", # Default reference image path
-        help="包含角色名称标签的角色参考图文件路径。如果未提供，将默认使用 'data/char-ref.jpeg'。"
-    )
-    parser.add_argument(
-        "--output_dir",
-        type=str,
-        default="data/tmp", # This is the base for 00, 01, etc. character folders
-        help="存放整理后角色文件夹和文件的根目录 (默认为: data/tmp)。"
-    )
-    parser.add_argument(
-        "--map_file",
-        type=str,
-        default=None,
-        help="可选的 JSON 文件路径，用于定义角色名到两位数文件夹名的映射。如果未提供，则使用配置文件中的默认映射。"
+        default="data/char-ref.jpeg",
+        help="包含角色名称标签的角色参考图文件路径。 (默认为: data/char-ref.jpeg)。"
     )
     parser.add_argument(
         "--model",
         type=str,
-        default=getattr(cfg, 'MODEL_ID', 'gpt-4o-mini'), # Get MODEL_ID from config.py
-        help=f"指定要使用的模型 ID (默认为配置文件中的值)。"
+        default=getattr(cfg, 'MODEL_ID', 'gemini-2.5-flash-preview-04-17'),
+        help="指定要使用的模型 ID (默认为配置文件中的值或 'gemini-2.5-flash-preview-04-17')。"
     )
     parser.add_argument(
-        "--delay",
-        type=float,
-        default=1.0, # Default delay of 1 second between API calls
-        help="每次API调用之间的延迟时间（秒），以避免速率限制 (默认为: 1.0)。"
+        "--workers",
+        type=int,
+        default=min(10, os.cpu_count() + 4 if os.cpu_count() else 8), # 默认为CPU核心数+4或10中较小者，至少为8
+        help="并发处理的工作线程数量 (默认为 CPU核心数+4 和 10 中的较小值, 如果无法获取核心数则为8)。"
     )
 
     args = parser.parse_args()
 
-    # Ensure config has necessary attributes, provide defaults if missing from config.py
     current_model_id = args.model
-    max_tokens = getattr(cfg, 'MAX_TOKENS_OUTPUT', 1024)
+    max_tokens = getattr(cfg, 'MAX_TOKENS_OUTPUT', 200)
     request_timeout = getattr(cfg, 'REQUEST_TIMEOUT', 120)
 
-    # Load character map
-    character_map = load_character_map(args.map_file)
-    if not character_map: # Should use default from config if map_file is None or fails
-        print("警告：角色映射为空或加载失败。如果配置文件中没有定义默认映射，脚本可能无法正确分类。")
-    print(f"使用的角色映射: {character_map}")
+    input_root_path = Path(args.input_dir)
+    OUTPUT_BASE_DIR = Path("data/250514-chmr/场景1") # 固定输出目录
 
-    input_path = Path(args.input_dir)
-    # output_base_dir is where 00, 01, etc. folders (final classified output) will be created
-    output_base_dir = Path(args.output_dir)
-    output_base_dir.mkdir(parents=True, exist_ok=True)
-
-    # Define and create the temporary directory for initial JSON saves
-    # This directory will be inside the main output_dir
-    temp_json_dir = output_base_dir / "temp_json_files" # Renamed for clarity
-    temp_json_dir.mkdir(parents=True, exist_ok=True)
-    print(f"临时JSON文件将首先保存在: {temp_json_dir}")
-
-
-    if not input_path.is_dir():
-        print(f"错误：输入路径 '{args.input_dir}' 不是一个有效的目录。")
+    if not input_root_path.is_dir():
+        print(f"错误：输入根目录 '{args.input_dir}' 不是一个有效的目录。")
         exit(1)
-
-    # Use parser.get_default('ref_image') to show the actual default in error message
     if not Path(args.ref_image).is_file():
         print(f"错误：参考图像 '{args.ref_image}' 未找到或不是一个文件。")
-        print(f"请确保默认路径 '{parser.get_default('ref_image')}' 有效，或者通过 --ref_image 参数提供一个正确的路径。")
         exit(1)
 
-    # Supported image extensions
+    try:
+        OUTPUT_BASE_DIR.mkdir(parents=True, exist_ok=True)
+        print(f"输出目录 '{OUTPUT_BASE_DIR}' 已确保存在。")
+        for code_key in CHARACTER_MAPPING.keys():
+            (OUTPUT_BASE_DIR / code_key).mkdir(exist_ok=True)
+        print(f"所有角色代码子目录已在 '{OUTPUT_BASE_DIR}' 下确保存在。")
+    except OSError as e:
+        print(f"错误：创建输出目录 '{OUTPUT_BASE_DIR}' 或其子目录失败: {e}")
+        exit(1)
+
     image_extensions = ['.jpg', '.jpeg', '.png', '.webp', '.bmp']
-    
-    scene_image_files = sorted([ # Sorted for consistent processing order
-        f for f in input_path.iterdir() if f.is_file() and f.suffix.lower() in image_extensions
-    ])
+    collected_source_files = []
+    print(f"\n正在扫描输入目录 '{input_root_path}' 下的子文件夹以查找图片...")
+    for item_in_root in input_root_path.iterdir():
+        if item_in_root.is_dir():
+            if item_in_root.name == OUTPUT_BASE_DIR.name: # 排除 "场景1"
+                print(f"  跳过扫描源目录 '{item_in_root.name}' (与输出目标目录同名)。")
+                continue
+            print(f"  正在扫描子文件夹 '{item_in_root.name}' 中的图片...")
+            for image_file_path in item_in_root.glob('**/*'):
+                if image_file_path.is_file() and image_file_path.suffix.lower() in image_extensions:
+                    collected_source_files.append(image_file_path)
+    scene_image_files = sorted(list(set(collected_source_files)))
 
     if not scene_image_files:
-        print(f"在目录 '{args.input_dir}' 中没有找到支持的图像文件。")
+        print(f"在输入目录 '{args.input_dir}' 的合格子文件夹中没有找到支持的图像文件。")
         exit(1)
-    
+
     total_images = len(scene_image_files)
-    print(f"找到 {total_images} 张图像进行处理...")
+    print(f"\n总共找到 {total_images} 张图像准备进行并发处理 (使用 {args.workers} 个工作线程)...")
+    print(f"将使用以下 CHARACTER_MAPPING (代码: 角色名) 指导LLM:")
+    for code, name in CHARACTER_MAPPING.items():
+        if code != "00":
+            print(f'  "{code}": "{name}"')
+    print(f"如果未找到以上角色，或为空镜，LLM应输出: [\"00\"]\n")
 
-    for i, scene_image_file_path in enumerate(scene_image_files):
-        print(f"\n--- 处理图像: {scene_image_file_path.name} ({i+1}/{total_images}) ---")
-        
-        # 1. Get character info from API
-        character_data = get_character_info_from_image(
-            str(scene_image_file_path), 
-            args.ref_image,
-            current_model_id,
-            max_tokens,
-            request_timeout
-        )
+    futures = []
+    processed_count = 0
+    successful_api_calls = 0
 
-        if not character_data:
-            print(f"未能从API获取图像 '{scene_image_file_path.name}' 的角色信息或解析响应。跳过此图像。")
-            if args.delay > 0 and i < total_images - 1: # Delay only if not the last image
-                time.sleep(args.delay)
-            continue
+    with concurrent.futures.ThreadPoolExecutor(max_workers=args.workers) as executor:
+        for scene_image_file_path_obj in scene_image_files:
+            future = executor.submit(
+                process_single_image_task,
+                scene_image_file_path_obj,
+                args.ref_image,
+                current_model_id,
+                max_tokens,
+                request_timeout,
+                OUTPUT_BASE_DIR,
+                input_root_path
+            )
+            futures.append(future)
 
-        # 2. Save the JSON data to the temporary directory
-        json_filename = scene_image_file_path.stem + ".json"
-        # JSON files are initially saved in the temp_json_dir
-        temp_json_output_path = temp_json_dir / json_filename 
-
-        try:
-            with open(temp_json_output_path, 'w', encoding='utf-8') as f:
-                json.dump(character_data, f, ensure_ascii=False, indent=2)
-            print(f"角色信息已临时保存到: {temp_json_output_path}")
-        except IOError as e:
-            print(f"错误：无法写入临时JSON文件 '{temp_json_output_path}': {e}。跳过此图像的文件整理。")
-            if args.delay > 0 and i < total_images - 1:
-                time.sleep(args.delay)
-            continue
-
-        # 3. Organize files based on detected characters
-        # Validate structure needed for organization
-        if not ("people" in character_data and \
-                isinstance(character_data.get("people"), list) and \
-                "count" in character_data):
-            print(f"警告：图像 '{scene_image_file_path.name}' 的JSON数据结构不符合预期 (缺少 'people' 或 'count')。无法进行文件整理。")
-            print(f"获取到的数据: {character_data}")
-            # Optionally, decide if you want to keep or delete the temp JSON in this case
-            # For now, it will remain in the temp_json_dir
-            if args.delay > 0 and i < total_images - 1:
-                time.sleep(args.delay)
-            continue 
-
-        json_copied_to_final_destination = False # Flag to track if JSON was copied for this image
-
-        # Case 1: Empty shot (no characters recognized by API matching reference)
-        if character_data.get("count") == 0:
-            print(f"对于图像 '{scene_image_file_path.name}': API 指示为空镜或未识别出与参考图匹配的角色。")
-            empty_shot_folder_code = "00"
-            # Character folders are directly under output_base_dir (e.g., data/tmp/00)
-            character_folder = output_base_dir / empty_shot_folder_code
-            character_folder.mkdir(parents=True, exist_ok=True)
-
-            # Copy original image to "00"
+        for future in concurrent.futures.as_completed(futures):
+            processed_count += 1
             try:
-                dest_image_path = character_folder / scene_image_file_path.name
-                shutil.copy2(scene_image_file_path, dest_image_path)
-                print(f"图像 '{scene_image_file_path.name}' (空镜/无匹配) 已复制到 '{dest_image_path}'")
-            except Exception as e:
-                print(f"错误：复制图像 '{scene_image_file_path.name}' 到 '{character_folder}' 失败: {e}")
+                image_name, api_success = future.result()
+                if api_success:
+                    successful_api_calls +=1
+                print(f"--- 完成 ({processed_count}/{total_images}): {image_name} ---")
+            except Exception as e: # pylint: disable=broad-except
+                # 异常应该在 task 内部被捕获并打印，这里是备用
+                print(f"--- 错误 ({processed_count}/{total_images}): 处理一个图像时发生顶层异常: {e} ---")
 
-            # Copy JSON file from temporary location to "00"
-            try:
-                dest_json_path = character_folder / json_filename
-                if temp_json_output_path.exists(): # Source is now the temp JSON path
-                    shutil.copy2(temp_json_output_path, dest_json_path)
-                    print(f"JSON '{json_filename}' (空镜/无匹配) 已从临时位置复制到 '{dest_json_path}'")
-                    json_copied_to_final_destination = True
-                else:
-                    print(f"错误: 源临时JSON文件 '{temp_json_output_path}' 未找到，无法复制。")
-            except Exception as e:
-                print(f"错误：复制JSON '{json_filename}' 到 '{character_folder}' 失败: {e}")
 
-        # Case 2: Characters were potentially found (count > 0)
-        else:
-            found_characters_in_map_for_this_image = False # For specific message later
-            people_list = character_data.get("people", []) # Should have items if count > 0
-            
-            if not people_list and character_data.get("count", 0) > 0:
-                 print(f"注意: API 报告了 {character_data['count']} 个角色，但 'people' 列表为空。图像 '{scene_image_file_path.name}' 将不会被分类到角色文件夹中。")
-            
-            for person in people_list:
-                name = person.get("name")
-                if name and character_map and name in character_map:
-                    found_characters_in_map_for_this_image = True
-                    character_code = character_map[name]
-                    character_folder = output_base_dir / character_code
-                    character_folder.mkdir(parents=True, exist_ok=True)
+    print(f"\n--- 所有 {total_images} 个图像任务已提交并等待完成 ---")
+    print(f"总共处理完成: {processed_count} 张图片。")
+    print(f"其中 API 成功获取角色代码（或判定为'00'）: {successful_api_calls} 次。")
+    print(f"图片已根据识别结果复制到 '{OUTPUT_BASE_DIR}' 下的对应子文件夹。")
 
-                    # Copy original image
-                    try:
-                        dest_image_path = character_folder / scene_image_file_path.name
-                        shutil.copy2(scene_image_file_path, dest_image_path)
-                        print(f"图像 '{scene_image_file_path.name}' 已复制到 '{dest_image_path}' (角色: {name})")
-                    except Exception as e:
-                        print(f"错误：复制图像 '{scene_image_file_path.name}' 到 '{character_folder}' (角色: {name}) 失败: {e}")
-
-                    # Copy JSON file from temporary location
-                    try:
-                        dest_json_path = character_folder / json_filename
-                        if temp_json_output_path.exists(): # Source is temp JSON path
-                             shutil.copy2(temp_json_output_path, dest_json_path)
-                             print(f"JSON '{json_filename}' 已从临时位置复制到 '{dest_json_path}' (角色: {name})")
-                             json_copied_to_final_destination = True # Mark as copied
-                        else:
-                            print(f"错误: 源临时JSON文件 '{temp_json_output_path}' 未找到，无法复制。")
-                    except Exception as e:
-                        print(f"错误：复制JSON '{json_filename}' 到 '{character_folder}' (角色: {name}) 失败: {e}")
-                elif name: # Character detected by API but not in our user-defined map
-                    print(f"注意：在图像 '{scene_image_file_path.name}' 中检测到角色 '{name}'，但该角色不在角色映射中或映射为空，将忽略此角色的分类。")
-            
-            # This message is for cases where API found people, but NONE of them matched our character_map
-            if not found_characters_in_map_for_this_image and people_list: 
-                print(f"对于图像 '{scene_image_file_path.name}': API 识别出角色，但这些角色均未在提供的角色映射中找到。图像不会被分类到数字角色文件夹。")
-
-        # Delete the JSON from the temporary directory if it was successfully copied to a final destination
-        if json_copied_to_final_destination and temp_json_output_path.exists():
-            try:
-                os.remove(temp_json_output_path)
-                print(f"已从临时目录删除: {temp_json_output_path.name}")
-            except OSError as e:
-                print(f"错误：无法从临时目录删除JSON文件 '{temp_json_output_path}': {e}")
-        elif temp_json_output_path.exists(): # If it exists but wasn't copied to a final destination
-             print(f"注意：图像 '{scene_image_file_path.name}' 的临时JSON文件保留在 '{temp_json_dir}' 中，因为它未被分类到任何最终的角色文件夹。")
-        
-        # Delay between API calls, except for the last image
-        if args.delay > 0 and i < total_images - 1:
-            print(f"等待 {args.delay} 秒后处理下一张图片...")
-            time.sleep(args.delay)
-    
-    # Optional: Clean up the temp_json_dir if it's empty after processing all files
-    # This is useful if you intend to delete all temp JSONs successfully after they are moved
-    try:
-        if temp_json_dir.exists() and not any(temp_json_dir.iterdir()): # Check if directory is empty
-            print(f"\n临时JSON目录 '{temp_json_dir}' 为空，正在尝试删除...")
-            # os.rmdir(temp_json_dir) # Use os.rmdir for empty directory, or shutil.rmtree if it might have subdirs (not expected here)
-            shutil.rmtree(temp_json_dir) # shutil.rmtree is safer if by any chance something else got put there
-            print(f"临时JSON目录 '{temp_json_dir}' 已删除。")
-        elif temp_json_dir.exists():
-            print(f"\n临时JSON目录 '{temp_json_dir}' 中仍有文件，未删除该目录。检查该目录以获取未分类或处理失败的JSON。")
-    except Exception as e:
-        print(f"尝试清理临时JSON目录 '{temp_json_dir}' 时出错: {e}")
-
-    print("\n--- 所有图像处理完毕 ---")
+# --- END OF FILE character_org_modified_concurrent.py ---
