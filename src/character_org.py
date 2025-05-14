@@ -14,6 +14,22 @@ except ImportError:
     print("错误：无法导入配置文件 'config.py'。请确保该文件存在且路径正确。")
     exit(1)
 
+CHARACTER_MAPPING = {
+    "00": "None",
+    "01": "秦云",
+    "02": "萧灵",
+    "03": "蔡成安",
+    "04": "蔡晓霞",
+    "07": "张思思",
+    "09": "虎哥",
+    "10": "绿衣男",
+    "11": "周学兵",
+    "12": "售货员",
+    "13": "王大妈",
+    "15": "周雪",
+    "16": "刘大爷", 
+}
+
 # --- Helper Function: Encode Image to Base64 ---
 def encode_image_to_base64(image_path: str) -> str | None:
     """将图像文件编码为 Base64 字符串"""
