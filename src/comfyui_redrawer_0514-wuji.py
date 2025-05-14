@@ -33,17 +33,17 @@ except ImportError:
 # --------------- 配置参数 ---------------
 SERVER_IPS = [
     "http://comfyui-demo.lingjingai.cn",
-    # "http://comfyui-demo2.lingjingai.cn",
-    # "http://comfyui-demo3.lingjingai.cn",
-    # "http://comfyui-demo4.lingjingai.cn",
-    # "http://comfyui-demo5.lingjingai.cn",
-    # "http://comfyui-demo6.lingjingai.cn",
-    # "http://comfyui-demo7.lingjingai.cn",
-    # "http://comfyui-demo8.lingjingai.cn",
-    # "http://comfyui-demo9.lingjingai.cn",
-    # "http://comfyui-demo10.lingjingai.cn",
-    # "http://comfyui-demo11.lingjingai.cn",
-    # "http://comfyui-demo12.lingjingai.cn",
+    "http://comfyui-demo2.lingjingai.cn",
+    "http://comfyui-demo3.lingjingai.cn",
+    "http://comfyui-demo4.lingjingai.cn",
+    "http://comfyui-demo5.lingjingai.cn",
+    "http://comfyui-demo6.lingjingai.cn",
+    "http://comfyui-demo7.lingjingai.cn",
+    "http://comfyui-demo8.lingjingai.cn",
+    "http://comfyui-demo9.lingjingai.cn",
+    "http://comfyui-demo10.lingjingai.cn",
+    "http://comfyui-demo11.lingjingai.cn",
+    "http://comfyui-demo12.lingjingai.cn",
     # 根据需要添加其他服务器IP
 ]
 NUM_WORKERS = len(SERVER_IPS) # 并发工作线程数 = 服务器数量
