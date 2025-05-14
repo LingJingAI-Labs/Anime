@@ -33,24 +33,24 @@ except ImportError:
 # --------------- 配置参数 ---------------
 SERVER_IPS = [
     "http://comfyui-demo.lingjingai.cn",
-    "http://comfyui-demo2.lingjingai.cn",
-    "http://comfyui-demo3.lingjingai.cn",
-    "http://comfyui-demo4.lingjingai.cn",
-    "http://comfyui-demo5.lingjingai.cn",
-    "http://comfyui-demo6.lingjingai.cn",
-    "http://comfyui-demo7.lingjingai.cn",
-    "http://comfyui-demo8.lingjingai.cn",
-    "http://comfyui-demo9.lingjingai.cn",
-    "http://comfyui-demo10.lingjingai.cn",
-    "http://comfyui-demo11.lingjingai.cn",
-    "http://comfyui-demo12.lingjingai.cn",
+    # "http://comfyui-demo2.lingjingai.cn",
+    # "http://comfyui-demo3.lingjingai.cn",
+    # "http://comfyui-demo4.lingjingai.cn",
+    # "http://comfyui-demo5.lingjingai.cn",
+    # "http://comfyui-demo6.lingjingai.cn",
+    # "http://comfyui-demo7.lingjingai.cn",
+    # "http://comfyui-demo8.lingjingai.cn",
+    # "http://comfyui-demo9.lingjingai.cn",
+    # "http://comfyui-demo10.lingjingai.cn",
+    # "http://comfyui-demo11.lingjingai.cn",
+    # "http://comfyui-demo12.lingjingai.cn",
     # 根据需要添加其他服务器IP
 ]
 NUM_WORKERS = len(SERVER_IPS) # 并发工作线程数 = 服务器数量
 
-NUM_ITERATIONS = 10 # 对所有图像的迭代次数
+NUM_ITERATIONS = 8 # 对所有图像的迭代次数
 
-BASE_INPUT_DIR = "data/250511" # 包含场景文件夹的根目录 (主图的本地路径)
+BASE_INPUT_DIR = "data/250514-wuji" # 包含场景文件夹的根目录 (主图的本地路径)
 
 # --- MODIFIED: 本地 Mask 文件路径配置 ---
 # 这些是 Mask 文件在您本地计算机上的路径。脚本会将它们上传到 ComfyUI 服务器。
@@ -61,7 +61,7 @@ MASK_UPLOAD_SUBFOLDER_ON_SERVER = "clipspace"          # Mask 在 ComfyUI 服务
 # --- End of Mask Filenames ---
 
 WORKFLOW_BASE_DIR = "workflow" # 包含基础工作流 JSON 的目录 (本地路径)
-OUTPUT_FOLDER = os.path.join(BASE_INPUT_DIR, "opt_auto") # 生成图像的输出目录 (本地路径)
+OUTPUT_FOLDER = os.path.join("data/250514-wuji", "opt_auto") # 生成图像的输出目录 (本地路径)
 
 # --- 统一工作流和动态 LoRA 配置 ---
 BASE_WORKFLOW_FILENAME = "FLUX-0512-base.json" # 用于所有任务的单个工作流文件
@@ -81,14 +81,15 @@ LORA_MAPPING = {
     "15": "wuji/char/魏不凡/char15魏不凡.safetensors",
     "16": "wuji/char/外门长老3/char16外门长老3.safetensors",
     "18": "wuji/char/器灵/char18器灵.safetensors",
-    "19": "wuji/char/黑供奉/char19黑供奉.safetensors",
+    "19": "wuji/char/竹宗主/char19竹海宗宗主.safetensors",
     "20": "wuji/char/火长老/char20火长老.safetensors",
     "21": "wuji/char/叶天穹/char21叶天穹.safetensors",
     "25": "wuji/char/金长老/char25金长老.safetensors",
     "26": "wuji/char/木长老/char26木长老.safetensors",
     "27": "wuji/char/土长老/char27土长老.safetensors",
     "28": "wuji/char/水长老/char28水长老.safetensors",
-    "30": "wuji/char/小师妹/char30小师妹.safetensors",
+    "30": "wuji/char/小师妹/char30小师妹V2.safetensors",
+    "35": "wuji/char/黑供奉/char35黑供奉.safetensors",
 }
 # --- !! 人工编辑区结束 !! ---
 
@@ -573,9 +574,8 @@ class ComfyUITester:
             return [], time.time() - task_start_time
         # /data/comfyui/input/wuji/250512/场景1/01
         # 'data/250511/场景1/01/E028C022.png'
-        # --- 2. 上传主图像 ---
-        print(type(main_image_path))
-        uploaded_main_image_ref = main_image_path.replace("data/250511", "/data/comfyui/input/wuji/250512")
+        # --- 2. 上传主图像 ---   'data/250514-wuji/场景1/11/E028C022-1.png'
+        uploaded_main_image_ref = main_image_path.replace("data/250514-wuji", "/data/comfyui/input/wuji/250514-wuji")
         # uploaded_main_image_ref = self.upload_main_image(main_image_path)
         # if not uploaded_main_image_ref:
         #      self._log_error(f"主图像上传失败 for '{original_image_basename}'. 中止处理。")
