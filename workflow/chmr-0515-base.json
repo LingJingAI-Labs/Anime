@@ -508,6 +508,10 @@
       "model": [
         "210",
         0
+      ],
+      "clip": [
+        "210",
+        1
       ]
     },
     "class_type": "Lora Loader Stack (rgthree)",
