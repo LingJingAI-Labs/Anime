@@ -9,6 +9,7 @@ import uuid
 import re
 from tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor, as_completed, CancelledError
+from utils import organize_images_by_episode
 
 # --- 设置 Python Path ---
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -29,23 +30,23 @@ except ImportError:
 # --------------- 配置参数 ---------------
 SERVER_IPS = [
     "http://comfyui-demo.lingjingai.cn",
-    "http://comfyui-demo2.lingjingai.cn",
-    "http://comfyui-demo3.lingjingai.cn",
-    "http://comfyui-demo4.lingjingai.cn",
-    "http://comfyui-demo5.lingjingai.cn",
-    "http://comfyui-demo6.lingjingai.cn",
-    "http://comfyui-demo7.lingjingai.cn",
-    "http://comfyui-demo8.lingjingai.cn",
-    "http://comfyui-demo9.lingjingai.cn",
-    "http://comfyui-demo10.lingjingai.cn",
-    "http://comfyui-demo11.lingjingai.cn",
-    "http://comfyui-demo12.lingjingai.cn",
+    # "http://comfyui-demo2.lingjingai.cn",
+    # "http://comfyui-demo3.lingjingai.cn",
+    # "http://comfyui-demo4.lingjingai.cn",
+    # "http://comfyui-demo5.lingjingai.cn",
+    # "http://comfyui-demo6.lingjingai.cn",
+    # "http://comfyui-demo7.lingjingai.cn",
+    # "http://comfyui-demo8.lingjingai.cn",
+    # "http://comfyui-demo9.lingjingai.cn",
+    # "http://comfyui-demo10.lingjingai.cn",
+    # "http://comfyui-demo11.lingjingai.cn",
+    # "http://comfyui-demo12.lingjingai.cn",
     # 根据需要添加其他服务器IP
 ]
 
 NUM_WORKERS = len(SERVER_IPS) # 并发工作线程数 = 服务器数量
 
-NUM_ITERATIONS = 8 # 对所有图像的迭代次数
+NUM_ITERATIONS = 12 # 对所有图像的迭代次数
 
 BASE_INPUT_DIR = "data/250514-chmr" # 包含场景文件夹的根目录 (主图的本地路径)
 
@@ -61,8 +62,8 @@ WORKFLOW_BASE_DIR = "workflow" # 包含基础工作流 JSON 的目录 (本地路
 OUTPUT_FOLDER = os.path.join("data/250514-chmr", "opt_auto") # 生成图像的输出目录 (本地路径)
 
 # --- 统一工作流和动态 LoRA 配置 ---
-BASE_WORKFLOW_FILENAME = "chmr-0513-base.json" # 用于所有任务的单个工作流文件
-LORA_NODE_ID = "12" # 工作流中 "Lora Loader Stack" 节点的 ID
+BASE_WORKFLOW_FILENAME = "chmr-0515-base.json" # 用于所有任务的单个工作流文件
+LORA_NODE_IDS = ["12", "228"] # 工作流中 "Lora Loader Stack" 节点的 ID 列表
 DEFAULT_LORA_STRENGTH_02 = 1.0 # 使用特定 LoRA 时 lora_02 的默认强度
 
 # --- !! 人工编辑区: 定义镜头文件夹名称到 LoRA 文件名的映射 !! ---
@@ -314,27 +315,28 @@ class ComfyUITester:
                  self._log_verbose(f"警告: 字幕蒙版节点 ID '{SUBTITLE_MASK_NODE_ID}' 已配置，但在工作流中未找到。")
 
         # --- 更新 LoRA 节点 ---
-        if LORA_NODE_ID in modified_workflow:
-            lora_node = modified_workflow[LORA_NODE_ID]
-            if "inputs" in lora_node and "lora_02" in lora_node["inputs"] and "strength_02" in lora_node["inputs"]:
-                if shot_folder_name in LORA_MAPPING:
-                    lora_file_to_use = LORA_MAPPING[shot_folder_name]
-                    if shot_folder_name == "00" or lora_file_to_use == "None":
-                        lora_node["inputs"]["lora_02"] = "None"
-                        lora_node["inputs"]["strength_02"] = 0.0
-                        self._log_verbose(f"    更新 LoRA 节点 '{LORA_NODE_ID}': lora_02='None', strength_02=0.0 (镜头 '{shot_folder_name}')")
+        for lora_node_id_str in LORA_NODE_IDS:
+            if lora_node_id_str in modified_workflow:
+                lora_node = modified_workflow[lora_node_id_str]
+                if "inputs" in lora_node and "lora_02" in lora_node["inputs"] and "strength_02" in lora_node["inputs"]:
+                    if shot_folder_name in LORA_MAPPING:
+                        lora_file_to_use = LORA_MAPPING[shot_folder_name]
+                        if shot_folder_name == "00" or lora_file_to_use == "None":
+                            lora_node["inputs"]["lora_02"] = "None"
+                            lora_node["inputs"]["strength_02"] = 0.0
+                            self._log_verbose(f"    更新 LoRA 节点 '{lora_node_id_str}': lora_02='None', strength_02=0.0 (镜头 '{shot_folder_name}')")
+                        else:
+                            lora_node["inputs"]["lora_02"] = lora_file_to_use
+                            lora_node["inputs"]["strength_02"] = DEFAULT_LORA_STRENGTH_02
+                            self._log_verbose(f"    更新 LoRA 节点 '{lora_node_id_str}': lora_02='{lora_file_to_use}', strength_02={DEFAULT_LORA_STRENGTH_02} (镜头 '{shot_folder_name}')")
                     else:
-                        lora_node["inputs"]["lora_02"] = lora_file_to_use
-                        lora_node["inputs"]["strength_02"] = DEFAULT_LORA_STRENGTH_02
-                        self._log_verbose(f"    更新 LoRA 节点 '{LORA_NODE_ID}': lora_02='{lora_file_to_use}', strength_02={DEFAULT_LORA_STRENGTH_02} (镜头 '{shot_folder_name}')")
+                        default_lora = lora_node["inputs"].get("lora_02", "未定义")
+                        default_strength = lora_node["inputs"].get("strength_02", "未定义")
+                        self._log_verbose(f"警告: 镜头 '{shot_folder_name}' 在 LORA_MAPPING 中未找到。节点 '{lora_node_id_str}' 使用工作流默认值 (LoRA: '{default_lora}', Strength: {default_strength})。")
                 else:
-                    default_lora = lora_node["inputs"].get("lora_02", "未定义")
-                    default_strength = lora_node["inputs"].get("strength_02", "未定义")
-                    self._log_verbose(f"警告: 镜头 '{shot_folder_name}' 在 LORA_MAPPING 中未找到。节点 '{LORA_NODE_ID}' 使用工作流默认值 (LoRA: '{default_lora}', Strength: {default_strength})。")
+                    self._log_error(f"LoRA 节点 '{lora_node_id_str}' 结构不正确。无法动态调整 LoRA。")
             else:
-                self._log_error(f"LoRA 节点 '{LORA_NODE_ID}' 结构不正确。无法动态调整 LoRA。")
-        else:
-            self._log_verbose(f"提示: LoRA 节点 ID '{LORA_NODE_ID}' 在工作流中未找到。跳过 LoRA 调整。")
+                self._log_verbose(f"提示: LoRA 节点 ID '{lora_node_id_str}' 在工作流中未找到。跳过 LoRA 调整。")
 
         # --- 新增: 更新多行文本节点 (TEXT_MULTILINE_NODE_ID) 的 'text' 输入 ---
         if TEXT_MULTILINE_NODE_ID in modified_workflow:
@@ -445,6 +447,7 @@ class ComfyUITester:
         for node_id, node_output in outputs.items():
             if isinstance(node_output, dict) and 'images' in node_output and isinstance(node_output['images'], list):
                 for img_data in node_output['images']:
+                    # 我们只关心类型为 'output' 的图像，这些是最终结果
                     if isinstance(img_data, dict) and img_data.get('type') == 'output':
                         if 'filename' in img_data:
                             images_to_download.append(img_data)
@@ -465,12 +468,13 @@ class ComfyUITester:
 
         for idx, image_data in enumerate(images_to_download):
             server_filename = image_data.get('filename')
-            subfolder = image_data.get('subfolder', '') 
+            subfolder = image_data.get('subfolder', '') # ComfyUI output subfolder
             if not server_filename:
                 continue
 
+            # 构建本地保存文件名
             name_part_to_use = original_base
-            if len(images_to_download) > 1: 
+            if len(images_to_download) > 1: # 如果有多个输出图像，添加索引
                 name_part_to_use = f"{original_base}_output_{idx}"
             
             if current_iteration_num > 1:
@@ -480,6 +484,7 @@ class ComfyUITester:
             
             local_path = os.path.join(output_dir_for_run, final_local_filename)
 
+            # 准备下载URL
             url_params = {'filename': server_filename, 'type': 'output'}
             if subfolder:
                 url_params['subfolder'] = subfolder
@@ -506,9 +511,16 @@ class ComfyUITester:
             except Exception as e:
                 self._log_error(f"下载或保存图像 '{server_filename}' 时出错: {type(e).__name__}: {e}")
         
-        if not downloaded_files_paths and images_to_download: 
+        if not downloaded_files_paths and images_to_download: # 如果有图像要下载但一个都没成功
              self._log_verbose(f"  警告：找到 {len(images_to_download)} 张图像数据但未能下载任何图像 ({original_image_basename})。")
-        time.sleep(2)
+        
+        # Organize images after all downloads for this run are complete
+        if downloaded_files_paths: # Only organize if images were actually downloaded
+            self._log_info(f"开始整理 '{output_dir_for_run}' 中的图像...")
+            organize_images_by_episode(output_dir_for_run)
+            self._log_info(f"图像整理完成: '{output_dir_for_run}'")
+
+        time.sleep(2) # 保持原有逻辑
         return downloaded_files_paths
 
     def wait_for_completion(self, prompt_id: str) -> tuple[bool, dict | None, float]:
@@ -766,7 +778,7 @@ if __name__ == "__main__":
     print(f"总共需要处理的任务数 (图像 x 迭代): {total_tasks_to_process}")
     print(f"将使用 {NUM_WORKERS} 个并发工作线程 (每个服务器一个)。")
 
-    print(f"\nLoRA 节点 '{LORA_NODE_ID}' 的 lora_02/strength_02 将根据镜头动态设置:")
+    print(f"\nLoRA 节点 '{LORA_NODE_IDS}' 的 lora_02/strength_02 将根据镜头动态设置:")
     print(f"  - 镜头 '00' 或映射为 'None': lora_02='None', strength_02=0.0")
     print(f"  - 其他映射镜头: lora_02=映射文件, strength_02={DEFAULT_LORA_STRENGTH_02}")
     print(f"  - 未映射镜头: 使用工作流默认值")
@@ -801,9 +813,12 @@ if __name__ == "__main__":
                 verbose=VERBOSE_LOGGING
             )
 
+            # 确保路径分隔符为 / 以兼容不同操作系统
+            compatible_full_image_path = full_image_path.replace("\\", "/")
+
             future = executor.submit(
                 tester.process_image,
-                main_image_path=full_image_path,
+                main_image_path=compatible_full_image_path,
                 original_image_basename=image_filename,
                 current_iteration_num=iter_num,
                 shot_folder_name=shot_folder_name,
@@ -875,7 +890,7 @@ if __name__ == "__main__":
     
     print("-" * 60)
     print("动态节点调整总结:")
-    print(f"  - LoRA 节点 '{LORA_NODE_ID}' 已根据镜头动态调整。")
+    print(f"  - LoRA 节点 '{LORA_NODE_IDS}' 已根据镜头动态调整。")
     
     if SCENE_MASK_NODE_ID:
         print(f"  - 场景 Mask (节点 {SCENE_MASK_NODE_ID}): 已尝试设置 (从本地 '{BASE_MASK_DIR_LOCAL}/{SCENE_MASK_LOCAL_FILENAME_TEMPLATE}' 上传, 跳过: {SHOTS_TO_SKIP_SCENE_MASK if SHOTS_TO_SKIP_SCENE_MASK else '无'})")
