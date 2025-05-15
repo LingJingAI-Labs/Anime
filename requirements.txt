@@ -1,0 +1,10 @@
+requests
+matplotlib
+websocket-client
+paramiko
+torch
+opencv-python
+ultralytics
+tqdm
+numpy
+av
