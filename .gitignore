@@ -8,3 +8,7 @@ _pycache_/
 .DS_Store
 
 data/tmp/
+
+.env
+
+launch.json
