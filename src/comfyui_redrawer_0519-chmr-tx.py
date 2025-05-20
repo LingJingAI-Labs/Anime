@@ -42,13 +42,13 @@ SERVER_IPS = [
     # "http://comfyui-demo11.lingjingai.cn",
     # "http://comfyui-demo12.lingjingai.cn",
     # 根据需要添加其他服务器IP
-    "http://122.51.89.136:31001/",
-    "http://122.51.89.136:31002/",
+    "http://43.142.176.25:31001/",
+    "http://43.142.176.25:31002/",
 ]
 
 NUM_WORKERS = len(SERVER_IPS) # 并发工作线程数 = 服务器数量
 
-NUM_ITERATIONS = 3 # 对所有图像的迭代次数
+NUM_ITERATIONS = 2 # 对所有图像的迭代次数
     
 BASE_INPUT_DIR = "data/250514-chmr" # 包含场景文件夹的根目录 (主图的本地路径)
 
