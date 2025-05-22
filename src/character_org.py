@@ -261,7 +261,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--input_dir",
         type=str,
-        default="data/250514-chmr/",
+        default="data/250514-chmr",
         help="包含各剧集源文件夹（如“9集”、“10集”）的根目录路径。脚本会排除名为“场景1”的子文件夹作为输入源。"
     )
     parser.add_argument(
