@@ -41,6 +41,8 @@ SERVER_IPS = [
     "http://comfyui-demo10.lingjingai.cn",
     "http://comfyui-demo11.lingjingai.cn",
     "http://comfyui-demo12.lingjingai.cn",
+    "http://comfyui-demo13.lingjingai.cn",
+    "http://comfyui-demo14.lingjingai.cn",
     # 根据需要添加其他服务器IP
 ]
 
