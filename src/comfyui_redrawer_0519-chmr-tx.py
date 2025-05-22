@@ -48,7 +48,7 @@ SERVER_IPS = [
 
 NUM_WORKERS = len(SERVER_IPS) # 并发工作线程数 = 服务器数量
 
-NUM_ITERATIONS = 2 # 对所有图像的迭代次数
+NUM_ITERATIONS = 1 # 对所有图像的迭代次数
     
 BASE_INPUT_DIR = "data/250514-chmr" # 包含场景文件夹的根目录 (主图的本地路径)
 

@@ -14,7 +14,7 @@ if not AIHUBMIX_API_KEY:
 AIHUBMIX_API_URL = "https://aihubmix.com/v1/chat/completions"
 
 # 指定要使用的模型 ID
-MODEL_ID = "gemini-2.5-flash-preview-04-17" # 或者 "gpt-4o", "gpt-4o-mini"
+MODEL_ID = "gemini-2.5-flash-preview-05-20-nothink" # 或者 "gpt-4o", "gpt-4o-mini"
 
 # 增加 token 输出以容纳 JSON
 MAX_TOKENS_OUTPUT = 1024 # Increased for JSON output

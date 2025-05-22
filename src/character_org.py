@@ -273,8 +273,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--model",
         type=str,
-        default=getattr(cfg, 'MODEL_ID', 'gemini-2.5-flash-preview-04-17'),
-        help="指定要使用的模型 ID (默认为配置文件中的值或 'gemini-2.5-flash-preview-04-17')。"
+        default=getattr(cfg, 'MODEL_ID', 'gemini-2.5-flash-preview-05-20-nothink'),
+        help="指定要使用的模型 ID (默认为配置文件中的值或 'gemini-2.5-flash-preview-05-20-nothink')。"
     )
     parser.add_argument(
         "--workers",
